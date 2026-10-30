@@ -118,6 +118,16 @@ fn status_line_is_ours(v: &Value) -> bool {
 /// `hooks` (or one of its events) that is not what Claude Code documents is
 /// refused rather than replaced.
 fn merged(existing: &Value) -> Result<Value, String> {
+    merged_with(existing, HOOK_EVENTS, &hook_command)
+}
+
+/// `merged` for the events and relay command of the caller's choosing: Claude
+/// Code inside WSL runs the relay through a Linux path (wsl.rs).
+pub(crate) fn merged_with(
+    existing: &Value,
+    events: &[(&str, u64)],
+    command: &dyn Fn(&str) -> String,
+) -> Result<Value, String> {
     let mut root = existing.as_object().cloned().unwrap_or_default();
     let mut hooks = match root.get("hooks") {
         None => Map::new(),
@@ -125,7 +135,7 @@ fn merged(existing: &Value) -> Result<Value, String> {
         Some(_) => return Err(unexpected("\"hooks\"")),
     };
 
-    for (event, timeout) in HOOK_EVENTS {
+    for (event, timeout) in events {
         let mut list = match hooks.get(*event) {
             None => Vec::new(),
             Some(Value::Array(list)) => list.clone(),
@@ -135,7 +145,7 @@ fn merged(existing: &Value) -> Result<Value, String> {
         list.push(json!({
             "hooks": [{
                 "type": "command",
-                "command": hook_command(event),
+                "command": command(event),
                 "timeout": timeout,
             }]
         }));
@@ -151,7 +161,7 @@ fn unexpected(what: &str) -> String {
 }
 
 /// Settings with every Coucou entry removed, and nothing else changed.
-fn without_ours(existing: &Value) -> Result<Value, String> {
+pub(crate) fn without_ours(existing: &Value) -> Result<Value, String> {
     let mut root = existing.as_object().cloned().unwrap_or_default();
     let hooks = match root.get("hooks") {
         None => return Ok(Value::Object(root)),
@@ -192,9 +202,9 @@ fn edits(install: bool) -> Vec<FileEdit<'static>> {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
-pub fn status() -> HookStatus {
-    let current = read_settings_lossy();
-    let installed = current
+/// True when any hook in these settings is Coucou's.
+pub(crate) fn has_ours(settings: &Value) -> bool {
+    settings
         .get("hooks")
         .and_then(Value::as_object)
         .map(|hooks| {
@@ -204,10 +214,14 @@ pub fn status() -> HookStatus {
                 .flatten()
                 .any(entry_is_ours)
         })
-        .unwrap_or(false);
+        .unwrap_or(false)
+}
+
+pub fn status() -> HookStatus {
+    let current = read_settings_lossy();
     let hook_path = settings::hook_exe_path();
     HookStatus {
-        installed,
+        installed: has_ours(&current),
         plan_relay_installed: plan_relay_installed(&current),
         settings_path: settings_path().to_string_lossy().to_string(),
         hook_ready: hook_path.exists(),

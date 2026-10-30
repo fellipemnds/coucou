@@ -179,6 +179,15 @@ in time, Coucou stays quiet and Claude Code asks in the terminal as usual.
 
 It works from any terminal — Windows Terminal, PowerShell, VS Code, Git Bash.
 
+**Claude Code in WSL.** Claude Code started in a WSL distro — from a terminal
+there, or by the Claude desktop app on a WSL folder — reads that distro's
+`~/.claude/settings.json`, not the Windows one. Each running distro shows up in
+**Settings… → Agents** as *Claude Code (WSL · Ubuntu)*, with the same diff,
+dated backup and click. Its hooks run the same relay through its Linux path
+(`/mnt/c/…/coucou-hook.exe`), which still reaches Coucou on Windows. Only
+running distros are listed (asking a stopped one would boot it), and approvals
+stay in Claude Code: PermissionRequest is not installed there yet.
+
 ### Plan usage
 
 As on the Mac, the island's header can show your plan limits: a small pill

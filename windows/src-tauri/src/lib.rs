@@ -41,6 +41,7 @@ mod voice;
 #[cfg(windows)]
 mod webview_drop;
 mod whatsapp;
+mod wsl;
 
 use std::process::Command;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -428,22 +429,32 @@ fn hooks_apply(
 
 // ── Other agents' hooks and plugins ──────────────────────────────────────────
 
+// Async and off the main thread: WSL entries ask wsl.exe, which can take a
+// moment (wsl.rs).
+
 #[tauri::command]
-fn agent_hooks_list() -> Vec<agents::AgentStatus> {
-    agents::list()
+async fn agent_hooks_list() -> Vec<agents::AgentStatus> {
+    tauri::async_runtime::spawn_blocking(agents::list).await.unwrap_or_default()
 }
 
 /// The diff the user has to look at before anything is written.
 #[tauri::command]
-fn agent_hooks_preview(agent: String, install: bool) -> Result<config_file::Plan, String> {
-    agents::preview(&agent, install)
+async fn agent_hooks_preview(agent: String, install: bool) -> Result<config_file::Plan, String> {
+    tauri::async_runtime::spawn_blocking(move || agents::preview(&agent, install))
+        .await
+        .map_err(|e| e.to_string())?
 }
 
 /// Only ever called from an explicit click in the settings window, with the
 /// fingerprint of the preview the user looked at.
 #[tauri::command]
-fn agent_hooks_apply(agent: String, install: bool, fingerprint: String) -> Result<String, String> {
-    let backups = agents::apply(&agent, install, &fingerprint)?;
+async fn agent_hooks_apply(agent: String, install: bool, fingerprint: String) -> Result<String, String> {
+    let backups = {
+        let agent = agent.clone();
+        tauri::async_runtime::spawn_blocking(move || agents::apply(&agent, install, &fingerprint))
+            .await
+            .map_err(|e| e.to_string())??
+    };
     let done = if install { "installed" } else { "removed" };
     log::line(format!("agent hooks {done} for {agent}"));
     Ok(backups)
