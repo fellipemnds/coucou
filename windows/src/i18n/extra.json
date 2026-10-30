@@ -2566,6 +2566,21 @@
       "ko": "새 Gemini CLI 세션을 시작하면 훅이 적용돼요.",
       "ja": "フックを読み込むには、新しい Gemini CLI セッションを始めてください。"
     },
+    "Start a new Claude Code session in WSL to pick the hooks up.": {
+      "zh-Hans": "在 WSL 中开启新的 Claude Code 会话即可启用 hooks。",
+      "hi": "hooks लागू करने के लिए WSL में Claude Code का नया सत्र शुरू करें।",
+      "es": "Abre una nueva sesión de Claude Code en WSL para que cargue los hooks.",
+      "ar": "ابدأ جلسة Claude Code جديدة في WSL لتفعيل الـ hooks.",
+      "fr": "Lance une nouvelle session Claude Code dans WSL pour qu'elle prenne les hooks.",
+      "bn": "hooks চালু করতে WSL-এ Claude Code-এর নতুন সেশন শুরু করুন।",
+      "pt-BR": "Inicie uma nova sessão do Claude Code no WSL para carregar os hooks.",
+      "ru": "Начните новую сессию Claude Code в WSL, чтобы хуки заработали.",
+      "id": "Mulai sesi Claude Code baru di WSL agar hooks dimuat.",
+      "de": "Starte eine neue Claude Code-Sitzung in WSL, um die Hooks zu aktivieren.",
+      "tr": "Hook'ları kullanmak için WSL'de yeni bir Claude Code oturumu başlat.",
+      "ko": "WSL에서 새 Claude Code 세션을 시작하면 훅이 적용돼요.",
+      "ja": "フックを読み込むには、WSL で新しい Claude Code セッションを始めてください。"
+    },
     "Start a new Muse Code session to pick the hooks up.": {
       "zh-Hans": "开启新的 Muse Code 会话即可启用 hooks。",
       "hi": "hooks लागू करने के लिए Muse Code का नया सत्र शुरू करें।",

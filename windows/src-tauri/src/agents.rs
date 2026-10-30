@@ -312,8 +312,8 @@ impl Agent {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentStatus {
-    pub id: &'static str,
-    pub name: &'static str,
+    pub id: String,
+    pub name: String,
     pub installed: bool,
     /// The file (or files, one per line) Coucou writes.
     pub path: String,
@@ -327,30 +327,39 @@ fn find(id: &str) -> Result<Agent, String> {
     Agent::from_id(id).ok_or_else(|| crate::i18n::tf("Unknown agent \"{id}\".", &[("id", id)]))
 }
 
+/// Every agent, then Claude Code in each running WSL distro (wsl.rs).
 pub fn list() -> Vec<AgentStatus> {
     let home = platform::home_dir();
     let hook_ready = settings::hook_exe_path().exists();
-    Agent::ALL
+    let mut list: Vec<AgentStatus> = Agent::ALL
         .iter()
         .map(|&a| AgentStatus {
-            id: a.id(),
-            name: a.name(),
+            id: a.id().to_string(),
+            name: a.name().to_string(),
             installed: a.installed(&home),
             path: a.files(&home).iter().map(|p| p.display().to_string()).collect::<Vec<_>>().join("\n"),
             hook_ready,
             approvals: a.approvals(),
             note: a.note(),
         })
-        .collect()
+        .collect();
+    list.extend(crate::wsl::list());
+    list
 }
 
 pub fn preview(id: &str, install: bool) -> Result<Plan, String> {
+    if id.starts_with(crate::wsl::ID_PREFIX) {
+        return crate::wsl::preview(id, install);
+    }
     let agent = find(id)?;
     config_file::preview(&agent.edits(&platform::home_dir(), &Relay::current(), install))
 }
 
 /// Only ever called from an explicit click. Returns the backups taken, one per line.
 pub fn apply(id: &str, install: bool, fingerprint: &str) -> Result<String, String> {
+    if id.starts_with(crate::wsl::ID_PREFIX) {
+        return crate::wsl::apply(id, install, fingerprint);
+    }
     let agent = find(id)?;
     apply_in(agent, &platform::home_dir(), &Relay::current(), install, fingerprint)
 }
