@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { installFakeDom } from "./fakedom.mjs";
-import { calls, emit, sent } from "./tauri.mjs";
+import { calls, emit, internals, sent } from "./tauri.mjs";
 
 // The shell imports its stylesheet; layout is checked in the browser.
 registerHooks({
@@ -40,6 +40,8 @@ const { h } = await import("../src/views/dom.ts");
 const { onLanguageChange, setLanguage, t } = await import("../src/i18n/i18n.ts");
 const { FLOW_PAGES, NOTCH_PAGES, startHub } = await import("../src/hub/shell.ts");
 const pages = [...FLOW_PAGES, ...NOTCH_PAGES];
+const { SPEECH_PAGES } = await import("../src/hub/speech.ts");
+const { searchSettings } = await import("../src/hub/search.ts");
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 
 beforeEach(() => {
@@ -132,4 +134,39 @@ test("the sidebar uses the selected language on its first render", async () => {
   } finally {
     off();
   }
+});
+
+test("fork: a build without speech has no Flow and no OK Coucou, and opens on General", async () => {
+  const original = internals.invoke;
+  internals.invoke = async (cmd, args) => (cmd === "speech_available" ? false : original(cmd, args));
+  try {
+    const { root, hub, off, buttons } = await openHub();
+    try {
+      assert.equal(hub.current(), "general");
+      const labels = buttons.map((button) => button.find("SPAN")[0].textContent);
+      for (const page of [...FLOW_PAGES, NOTCH_PAGES.find((p) => p.id === "voice")]) {
+        assert.ok(!labels.includes(page.title()), `${page.id} is hidden`);
+      }
+      assert.equal(root.find(".hub-status").length, 0);
+      emit("hub-page", "dictation");
+      await settle();
+      assert.equal(hub.current(), "general");
+      // The settings search drops every hit on a speech page.
+      const query = "dictation";
+      const hits = searchSettings(query, (id) => id);
+      assert.ok(hits.some((hit) => SPEECH_PAGES.has(hit.entry.page)));
+      const search = root.find(".hub-search-input")[0];
+      search.value = query;
+      search.fire("input");
+      assert.equal(root.find(".hub-search-row").length, hits.filter((hit) => !SPEECH_PAGES.has(hit.entry.page)).length);
+    } finally {
+      off();
+    }
+  } finally {
+    internals.invoke = original;
+  }
+});
+
+test("fork: every Flow page and OK Coucou count as speech pages", () => {
+  for (const page of [...FLOW_PAGES, NOTCH_PAGES.find((p) => p.id === "voice")]) assert.ok(SPEECH_PAGES.has(page.id), page.id);
 });

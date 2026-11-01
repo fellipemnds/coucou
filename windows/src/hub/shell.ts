@@ -11,6 +11,7 @@ import { FlowBridge, type FlowPrefs, type FlowStatus, type ModelsStatus } from "
 import { hero, liveMochi, setWindowShown } from "./hero";
 import { icon, keyLabel } from "./ui";
 import { searchSettings, type SettingsSearchHit } from "./search";
+import { SPEECH_PAGES, speechAvailable } from "./speech";
 
 export type PageId =
   | "dictation" | "notes" | "insights" | "dictionary" | "snippets" | "styles" | "flowsettings"
@@ -99,7 +100,8 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
   await onEvent<boolean>("hub-visible", setWindowShown);
   const shown = await FlowBridge.hubShown();
   if (shown !== null) setWindowShown(shown);
-  let current: PageId = "dictation";
+  const speech = await speechAvailable();
+  let current: PageId = speech ? "dictation" : "general";
   let activeAnchor: string | null = null;
   let searchHits: SettingsSearchHit[] = [];
   let status: FlowStatus = (await FlowBridge.status()) ?? DEFAULT_STATUS;
@@ -238,8 +240,8 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
     }
     return heading;
   };
-  group("Flow", FLOW_PAGES);
-  const notchGroup = group(t("Notch"), NOTCH_PAGES);
+  if (speech) group("Flow", FLOW_PAGES);
+  const notchGroup = group(t("Notch"), speech ? NOTCH_PAGES : NOTCH_PAGES.filter((p) => !SPEECH_PAGES.has(p.id)));
   if (status.platform === "windows") group("Mail", MAIL_PAGES);
 
   function renderSearchResults() {
@@ -256,7 +258,8 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
     searchClear.style.display = "";
     groupsContainer.style.display = "none";
     resultsContainer.style.display = "";
-    searchHits = searchSettings(query, (pageId) => ALL.find((p) => p.id === pageId)?.title() ?? pageId);
+    searchHits = searchSettings(query, (pageId) => ALL.find((p) => p.id === pageId)?.title() ?? pageId)
+      .filter((hit) => speech || !SPEECH_PAGES.has(hit.entry.page));
     if (searchHits.length === 0) {
       resultsContainer.append(h("div", { class: "hub-search-empty", text: t("No setting found") }));
       return;
@@ -309,7 +312,7 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
     if (searchInput.value.trim()) renderSearchResults();
   });
 
-  side.append(h("div", { class: "spacer" }), statusLine, h("div", { class: "hub-version", text: `Coucou ${opts.version}` }));
+  side.append(h("div", { class: "spacer" }), ...(speech ? [statusLine] : []), h("div", { class: "hub-version", text: `Coucou ${opts.version}` }));
 
   clear(root);
   root.append(side, h("main", { class: "hub-panel" }, scroll));
@@ -318,7 +321,7 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
 
   void onEvent<string>("hub-page", (page) => {
     const id = (page === "settings" ? "flowsettings" : page) as PageId;
-    if (ALL.some((p) => p.id === id)) void show(id);
+    if (ALL.some((p) => p.id === id)) void show(speech || !SPEECH_PAGES.has(id) ? id : "general");
   });
   void onEvent<FlowPrefs>("flow-prefs", (prefs) => {
     status = { ...status, prefs };
