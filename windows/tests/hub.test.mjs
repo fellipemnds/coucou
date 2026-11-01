@@ -170,3 +170,29 @@ test("fork: a build without speech has no Flow and no OK Coucou, and opens on Ge
 test("fork: every Flow page and OK Coucou count as speech pages", () => {
   for (const page of [...FLOW_PAGES, NOTCH_PAGES.find((p) => p.id === "voice")]) assert.ok(SPEECH_PAGES.has(page.id), page.id);
 });
+
+test("fork: a build without the phone link has no Android phone page", async () => {
+  const original = internals.invoke;
+  internals.invoke = async (cmd, args) => (cmd === "phone_available" ? false : original(cmd, args));
+  try {
+    const { root, hub, off, buttons } = await openHub();
+    try {
+      const labels = buttons.map((button) => button.find("SPAN")[0].textContent);
+      assert.ok(!labels.includes(NOTCH_PAGES.find((p) => p.id === "phone").title()));
+      assert.ok(labels.includes(FLOW_PAGES[0].title()), "speech stays");
+      emit("hub-page", "phone");
+      await settle();
+      assert.equal(hub.current(), "general");
+      const hits = searchSettings("phone", (id) => id);
+      assert.ok(hits.some((hit) => hit.entry.page === "phone"));
+      const search = root.find(".hub-search-input")[0];
+      search.value = "phone";
+      search.fire("input");
+      assert.equal(root.find(".hub-search-row").length, hits.filter((hit) => hit.entry.page !== "phone").length);
+    } finally {
+      off();
+    }
+  } finally {
+    internals.invoke = original;
+  }
+});

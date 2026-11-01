@@ -7,6 +7,7 @@ import { State, type Settings } from "./core/state";
 import { Island } from "./island/island";
 import { registerHookHandlers } from "./island/hooks";
 import { registerPhoneLink } from "./island/phone-link";
+import { phoneAvailable } from "./core/fork";
 import { registerIntegrationHandlers, refreshConfigured } from "./island/integrations";
 import { registerShortcutHandlers } from "./island/shortcuts";
 import { registerVoiceHandlers } from "./island/voice";
@@ -156,7 +157,8 @@ async function main() {
   });
 
   registerHookHandlers(island);
-  registerPhoneLink(island);
+  // Fork: a build without the phone feature has nothing to publish to.
+  void phoneAvailable().then((on) => on && registerPhoneLink(island));
   registerIntegrationHandlers(island);
   registerShortcutHandlers(island, () => setPaused(false));
   registerVoiceHandlers();

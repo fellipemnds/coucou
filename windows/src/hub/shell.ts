@@ -11,7 +11,8 @@ import { FlowBridge, type FlowPrefs, type FlowStatus, type ModelsStatus } from "
 import { hero, liveMochi, setWindowShown } from "./hero";
 import { icon, keyLabel } from "./ui";
 import { searchSettings, type SettingsSearchHit } from "./search";
-import { SPEECH_PAGES, speechAvailable } from "./speech";
+import { SPEECH_PAGES } from "./speech";
+import { phoneAvailable, speechAvailable } from "../core/fork";
 
 export type PageId =
   | "dictation" | "notes" | "insights" | "dictionary" | "snippets" | "styles" | "flowsettings"
@@ -101,6 +102,8 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
   const shown = await FlowBridge.hubShown();
   if (shown !== null) setWindowShown(shown);
   const speech = await speechAvailable();
+  const phone = await phoneAvailable();
+  const hidden = (id: string) => (!speech && SPEECH_PAGES.has(id)) || (!phone && id === "phone");
   let current: PageId = speech ? "dictation" : "general";
   let activeAnchor: string | null = null;
   let searchHits: SettingsSearchHit[] = [];
@@ -241,7 +244,7 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
     return heading;
   };
   if (speech) group("Flow", FLOW_PAGES);
-  const notchGroup = group(t("Notch"), speech ? NOTCH_PAGES : NOTCH_PAGES.filter((p) => !SPEECH_PAGES.has(p.id)));
+  const notchGroup = group(t("Notch"), NOTCH_PAGES.filter((p) => !hidden(p.id)));
   if (status.platform === "windows") group("Mail", MAIL_PAGES);
 
   function renderSearchResults() {
@@ -259,7 +262,7 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
     groupsContainer.style.display = "none";
     resultsContainer.style.display = "";
     searchHits = searchSettings(query, (pageId) => ALL.find((p) => p.id === pageId)?.title() ?? pageId)
-      .filter((hit) => speech || !SPEECH_PAGES.has(hit.entry.page));
+      .filter((hit) => !hidden(hit.entry.page));
     if (searchHits.length === 0) {
       resultsContainer.append(h("div", { class: "hub-search-empty", text: t("No setting found") }));
       return;
@@ -321,7 +324,7 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
 
   void onEvent<string>("hub-page", (page) => {
     const id = (page === "settings" ? "flowsettings" : page) as PageId;
-    if (ALL.some((p) => p.id === id)) void show(speech || !SPEECH_PAGES.has(id) ? id : "general");
+    if (ALL.some((p) => p.id === id)) void show(hidden(id) ? "general" : id);
   });
   void onEvent<FlowPrefs>("flow-prefs", (prefs) => {
     status = { ...status, prefs };
