@@ -25,6 +25,7 @@ mod net;
 #[cfg(feature = "speech")]
 mod notes;
 mod openai_compat;
+#[cfg(feature = "phone")]
 mod phone_link;
 mod pipe;
 mod platform;
@@ -687,6 +688,12 @@ fn speech_available() -> bool {
     cfg!(feature = "speech")
 }
 
+/// Fork: whether this build has the Android phone link (the `phone` feature).
+#[tauri::command]
+fn phone_available() -> bool {
+    cfg!(feature = "phone")
+}
+
 /// Opens the configured n8n instance — the URL lives in the Credential Manager.
 #[tauri::command]
 fn open_n8n() {
@@ -892,6 +899,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             boot,
             speech_available,
+            phone_available,
             mail::mail_refresh,
             mail::mail_more,
             mail::mail_search,
@@ -959,35 +967,35 @@ pub fn run() {
             set_paused,
             shortcuts_status,
             shortcuts_suspend,
-            phone_link::phone_link_status,
-            phone_link::phone_link_set_enabled,
-            phone_link::phone_link_pairing,
-            phone_link::phone_link_new_pairing,
-            phone_link::phone_link_publish,
-            phone_link::phone_link_publish_question,
-            phone_link::phone_link_publish_prefs,
-            phone_link::phone_answers_status,
-            phone_link::phone_answers_set_enabled,
-            phone_link::phone_diffs_status,
-            phone_link::phone_diffs_set_enabled,
-            phone_link::phone_link_send_diff,
-            phone_link::phone_usage_status,
-            phone_link::phone_usage_set_enabled,
-            phone_link::phone_recap_status,
-            phone_link::phone_recap_set_enabled,
-            phone_link::phone_relay_status,
-            phone_link::phone_relay_set,
-            phone_link::phone_relay_set_access,
-            phone_link::phone_link_publish_usage,
-            phone_link::phone_link_publish_recap,
-            phone_link::phone_services_status,
-            phone_link::phone_services_set,
-            phone_link::phone_link_publish_services,
-            phone_link::phone_details_status,
-            phone_link::phone_details_set_enabled,
-            phone_link::phone_chat_status,
-            phone_link::phone_chat_set_enabled,
-            phone_link::phone_chat_set_models,
+            #[cfg(feature = "phone")] phone_link::phone_link_status,
+            #[cfg(feature = "phone")] phone_link::phone_link_set_enabled,
+            #[cfg(feature = "phone")] phone_link::phone_link_pairing,
+            #[cfg(feature = "phone")] phone_link::phone_link_new_pairing,
+            #[cfg(feature = "phone")] phone_link::phone_link_publish,
+            #[cfg(feature = "phone")] phone_link::phone_link_publish_question,
+            #[cfg(feature = "phone")] phone_link::phone_link_publish_prefs,
+            #[cfg(feature = "phone")] phone_link::phone_answers_status,
+            #[cfg(feature = "phone")] phone_link::phone_answers_set_enabled,
+            #[cfg(feature = "phone")] phone_link::phone_diffs_status,
+            #[cfg(feature = "phone")] phone_link::phone_diffs_set_enabled,
+            #[cfg(feature = "phone")] phone_link::phone_link_send_diff,
+            #[cfg(feature = "phone")] phone_link::phone_usage_status,
+            #[cfg(feature = "phone")] phone_link::phone_usage_set_enabled,
+            #[cfg(feature = "phone")] phone_link::phone_recap_status,
+            #[cfg(feature = "phone")] phone_link::phone_recap_set_enabled,
+            #[cfg(feature = "phone")] phone_link::phone_relay_status,
+            #[cfg(feature = "phone")] phone_link::phone_relay_set,
+            #[cfg(feature = "phone")] phone_link::phone_relay_set_access,
+            #[cfg(feature = "phone")] phone_link::phone_link_publish_usage,
+            #[cfg(feature = "phone")] phone_link::phone_link_publish_recap,
+            #[cfg(feature = "phone")] phone_link::phone_services_status,
+            #[cfg(feature = "phone")] phone_link::phone_services_set,
+            #[cfg(feature = "phone")] phone_link::phone_link_publish_services,
+            #[cfg(feature = "phone")] phone_link::phone_details_status,
+            #[cfg(feature = "phone")] phone_link::phone_details_set_enabled,
+            #[cfg(feature = "phone")] phone_link::phone_chat_status,
+            #[cfg(feature = "phone")] phone_link::phone_chat_set_enabled,
+            #[cfg(feature = "phone")] phone_link::phone_chat_set_models,
             recap::recap_history,
             recap::recap_prefs,
             recap::recap_set_enabled,
@@ -1072,6 +1080,7 @@ pub fn run() {
         ])
         .setup(move |app| {
             let handle = app.handle().clone();
+            #[cfg(feature = "phone")]
             app.manage(phone_link::PhoneLink::new(handle.clone()));
             tray::build(&handle)?;
             // Before the island: see create_settings_window.
@@ -1109,6 +1118,7 @@ pub fn run() {
             log::line(format!("--- Coucou {} started ---", env!("CARGO_PKG_VERSION")));
             hooks::ensure_hook_exe(&handle);
             pipe::start(handle.clone());
+            #[cfg(feature = "phone")]
             phone_link::start_if_enabled(&handle);
             integrations::start(handle.clone());
             mail::start(handle.clone());
@@ -1137,6 +1147,9 @@ pub fn run() {
         .run(|app, event| {
             // Withdraw the phone link's announcement on the local network before the process ends.
             if let tauri::RunEvent::Exit = event {
+                // Fork: only the speech and phone features use `app` here.
+                let _ = app;
+                #[cfg(feature = "phone")]
                 phone_link::stop_on_exit(app);
                 #[cfg(feature = "speech")]
                 notes::shutdown(app);
