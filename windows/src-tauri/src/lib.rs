@@ -10,6 +10,7 @@ mod codex_plan;
 mod config_file;
 mod desktop;
 mod files;
+#[cfg(feature = "speech")]
 mod flow;
 mod github;
 mod hooks;
@@ -21,6 +22,7 @@ mod local_chat;
 mod log;
 mod mail;
 mod net;
+#[cfg(feature = "speech")]
 mod notes;
 mod openai_compat;
 mod phone_link;
@@ -34,10 +36,12 @@ mod session_window;
 mod settings;
 mod shortcuts;
 mod sounds;
+#[cfg(feature = "speech")]
 mod speech;
 mod spotify;
 mod tray;
 mod update;
+#[cfg(feature = "speech")]
 mod voice;
 #[cfg(windows)]
 mod webview_drop;
@@ -646,6 +650,7 @@ fn secret_set(app: AppHandle, key: String, value: String) -> Result<(), String> 
     let before = (key == "github-token").then(|| secrets::get(&key));
     secrets::set(&key, &value)?;
     if key == claude::KEY {
+        #[cfg(feature = "speech")]
         voice::sync(&app);
     }
     if let Some(before) = before {
@@ -664,6 +669,7 @@ fn secret_clear(app: AppHandle, key: String) -> Result<(), String> {
     let had = key == "github-token" && secrets::present(&key);
     secrets::clear(&key)?;
     if key == claude::KEY {
+        #[cfg(feature = "speech")]
         voice::sync(&app);
     }
     if had {
@@ -673,6 +679,12 @@ fn secret_clear(app: AppHandle, key: String) -> Result<(), String> {
         integrations::gitea_credentials_changed(&app);
     }
     Ok(())
+}
+
+/// Fork: whether this build has Flow, the Notetaker and "OK Coucou" (the `speech` feature).
+#[tauri::command]
+fn speech_available() -> bool {
+    cfg!(feature = "speech")
 }
 
 /// Opens the configured n8n instance — the URL lives in the Credential Manager.
@@ -879,6 +891,7 @@ pub fn run() {
         .manage(recap::load())
         .invoke_handler(tauri::generate_handler![
             boot,
+            speech_available,
             mail::mail_refresh,
             mail::mail_more,
             mail::mail_search,
@@ -1012,40 +1025,40 @@ pub fn run() {
             whatsapp::whatsapp_save_gateway,
             whatsapp::whatsapp_test,
             whatsapp::whatsapp_install,
-            flow::flow_status,
-            flow::flow_set_prefs,
-            flow::flow_history,
-            flow::flow_delete,
-            flow::flow_clear,
-            flow::flow_stats,
-            flow::flow_words,
-            flow::flow_set_words,
-            flow::flow_snippets,
-            flow::flow_set_snippets,
-            flow::flow_styles,
-            flow::flow_set_styles,
-            flow::flow_running_apps,
-            flow::flow_copy,
-            flow::flow_paste_again,
-            flow::flow_models_download,
-            flow::flow_models_remove,
-            flow::pill_state,
-            flow::pill_hot,
-            flow::pill_hover,
-            flow::pill_action,
-            notes::notes_state,
-            notes::notes_start,
-            notes::notes_stop,
-            notes::notes_rename,
-            notes::notes_rename_speaker,
-            notes::notes_toggle_todo,
-            notes::notes_delete,
-            notes::notes_summarize,
-            notes::notes_retry,
-            notes::notes_markdown,
-            notes::notes_export,
-            voice::voice_done,
-            voice::voice_say_native,
+            #[cfg(feature = "speech")] flow::flow_status,
+            #[cfg(feature = "speech")] flow::flow_set_prefs,
+            #[cfg(feature = "speech")] flow::flow_history,
+            #[cfg(feature = "speech")] flow::flow_delete,
+            #[cfg(feature = "speech")] flow::flow_clear,
+            #[cfg(feature = "speech")] flow::flow_stats,
+            #[cfg(feature = "speech")] flow::flow_words,
+            #[cfg(feature = "speech")] flow::flow_set_words,
+            #[cfg(feature = "speech")] flow::flow_snippets,
+            #[cfg(feature = "speech")] flow::flow_set_snippets,
+            #[cfg(feature = "speech")] flow::flow_styles,
+            #[cfg(feature = "speech")] flow::flow_set_styles,
+            #[cfg(feature = "speech")] flow::flow_running_apps,
+            #[cfg(feature = "speech")] flow::flow_copy,
+            #[cfg(feature = "speech")] flow::flow_paste_again,
+            #[cfg(feature = "speech")] flow::flow_models_download,
+            #[cfg(feature = "speech")] flow::flow_models_remove,
+            #[cfg(feature = "speech")] flow::pill_state,
+            #[cfg(feature = "speech")] flow::pill_hot,
+            #[cfg(feature = "speech")] flow::pill_hover,
+            #[cfg(feature = "speech")] flow::pill_action,
+            #[cfg(feature = "speech")] notes::notes_state,
+            #[cfg(feature = "speech")] notes::notes_start,
+            #[cfg(feature = "speech")] notes::notes_stop,
+            #[cfg(feature = "speech")] notes::notes_rename,
+            #[cfg(feature = "speech")] notes::notes_rename_speaker,
+            #[cfg(feature = "speech")] notes::notes_toggle_todo,
+            #[cfg(feature = "speech")] notes::notes_delete,
+            #[cfg(feature = "speech")] notes::notes_summarize,
+            #[cfg(feature = "speech")] notes::notes_retry,
+            #[cfg(feature = "speech")] notes::notes_markdown,
+            #[cfg(feature = "speech")] notes::notes_export,
+            #[cfg(feature = "speech")] voice::voice_done,
+            #[cfg(feature = "speech")] voice::voice_say_native,
             update::update_status,
             update::update_set_consent,
             update::update_check,
@@ -1065,7 +1078,9 @@ pub fn run() {
             create_settings_window(&handle);
             // Same rule for Mochi's desktop window and the dictation pill.
             desktop::setup(&handle);
+            #[cfg(feature = "speech")]
             flow::setup(&handle);
+            #[cfg(feature = "speech")]
             notes::setup(&handle);
 
             if let Some(win) = island::window(&handle) {
@@ -1108,7 +1123,10 @@ pub fn run() {
                 // writing it again adds it, so the window stays hidden at login.
                 let _ = handle.autolaunch().enable();
             }
+            #[cfg(feature = "speech")]
             let open_window = flow::get(&handle).map(|f| f.store.lock().unwrap().prefs.open_at_launch).unwrap_or(true);
+            #[cfg(not(feature = "speech"))]
+            let open_window = true;
             if open_window && !launched_at_login() {
                 show_hub(&handle, None);
             }
@@ -1120,6 +1138,7 @@ pub fn run() {
             // Withdraw the phone link's announcement on the local network before the process ends.
             if let tauri::RunEvent::Exit = event {
                 phone_link::stop_on_exit(app);
+                #[cfg(feature = "speech")]
                 notes::shutdown(app);
                 // GOWA started by Coucou stops with it; the conversations were only in memory.
                 whatsapp::shutdown();

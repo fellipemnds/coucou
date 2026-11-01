@@ -10,6 +10,12 @@ license.workspace = true
 name = "coucou_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+# Fork: Flow dictation, the Notetaker and the "OK Coucou" voice (flow/, notes/,
+# speech/, voice/) are built only with `--features speech`.
+[features]
+default = []
+speech = ["dep:sherpa-onnx", "dep:cpal", "dep:arboard"]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
@@ -45,10 +51,10 @@ futures-util = { version = "0.3", default-features = false, features = ["sink"] 
 # Flow dictation and the Notetaker (flow/, notes/, speech/). Speech to text runs
 # on this computer: sherpa-onnx (Apache-2.0) with NVIDIA's Parakeet, linked
 # statically (onnxruntime included), the models downloaded on the user's click.
-sherpa-onnx = { version = "1.13.8", default-features = false, features = ["static"] }
+sherpa-onnx = { version = "1.13.8", default-features = false, features = ["static"], optional = true }
 # The microphone, and the computer's own sound for the Notetaker (WASAPI
 # loopback on Windows, a PulseAudio/PipeWire monitor on Linux). Apache-2.0.
-cpal = "0.18"
+cpal = { version = "0.18", optional = true }
 # WhatsApp's "Install WhatsApp" takes GOWA's binary out of the zip GOWA publishes (whatsapp/archive.rs):
 # the raw DEFLATE decoder only, already in the tree through png (the same 0.8.9), so nothing new is
 # downloaded or compiled. MIT/Zlib/Apache-2.0.
@@ -93,7 +99,7 @@ windows = { version = "0.61", features = [
   "Win32_System_LibraryLoader",
 ] }
 # The clipboard for Flow dictation, kept out of the clipboard history. MIT/Apache-2.0.
-arboard = { version = "3.6", default-features = false }
+arboard = { version = "3.6", default-features = false, optional = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 # Secret Service (GNOME Keyring, KWallet) over D-Bus, encrypted in transit.
@@ -111,6 +117,6 @@ dbus = "0.9.12"
 x11rb = { version = "0.13", default-features = false, features = ["xinput", "xtest"] }
 # PulseAudio (or PipeWire's PulseAudio server) for the microphone list and the
 # monitor of the speakers, the Notetaker's "computer sound". Pure Rust client.
-cpal = { version = "0.18", features = ["pulseaudio"] }
+cpal = { version = "0.18", features = ["pulseaudio"], optional = true }
 # The clipboard for Flow dictation (X11, and Wayland's data-control protocol).
-arboard = { version = "3.6", default-features = false, features = ["wayland-data-control"] }
+arboard = { version = "3.6", default-features = false, features = ["wayland-data-control"], optional = true }
