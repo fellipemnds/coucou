@@ -742,7 +742,8 @@ export class Island {
     if (DOCKED && State.mode === "compact") {
       w = dockedCompactW(claudeCompactPillVisible(), State.otherTasks.length > 0);
     }
-    if (State.mode === "expanded" && State.view === "question" && State.pendingApproval?.questions) {
+    // Fork: docked, the question already has the whole panel (views/agents.ts dockFull).
+    if (!DOCKED && State.mode === "expanded" && State.view === "question" && State.pendingApproval?.questions) {
       h = QUESTION_PICKER_H;
     }
     const r = State.mode === "expanded" ? EXPANDED_CORNER : ROUNDED_CORNER;
@@ -1333,6 +1334,10 @@ export class Island {
     if (DOCKED && State.mode === "compact" && !this.width.animating && Math.abs(this.width.value - this.targetSize().w) > 0.5) {
       this.animateGeometry(false);
     }
+    // Fork: open, the panel's height follows what it shows (views/agents.ts). Measured only once
+    // its view syncs, so the opening animation may be heading for the old height: retarget it.
+    const dockH = this.targetSize().h;
+    if (DOCKED && State.mode === "expanded" && Math.abs(this.height.target - dockH) > 0.5) this.animateGeometry(dockH < this.height.value);
     this.updateClock();
 
     syncMiniBotStates(State.tasks);

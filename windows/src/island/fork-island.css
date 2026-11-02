@@ -108,6 +108,208 @@
   display: none;
 }
 
+/* The agents panel (views/agents.ts, prototype version 11): the focused session's card,
+   Mochi in its head (drawn by the island at MOCHI), and the live sessions on the right. */
+.agents {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 10px;
+  height: 100%;
+}
+
+.agents .card {
+  box-sizing: border-box;
+  padding: 16px;
+}
+
+.ag-sess {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 14px;
+}
+
+.ag-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.ag-mochi {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+.ag-head b {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ag-st {
+  color: var(--dim);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.ag-sess[data-state="approval"] .ag-st { color: #f5a524; }
+.ag-sess[data-state="question"] .ag-st { color: #22d3ee; }
+.ag-sess[data-state="finished"] .ag-st { color: #34d399; }
+.ag-sess[data-state="error"] .ag-st { color: #f4505e; }
+
+.ag-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 4px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  min-height: 0;
+  overflow: hidden;
+  font-size: 12.5px;
+}
+
+.ag-steps li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--dim);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ag-steps li::before {
+  width: 12px;
+  flex: none;
+  text-align: center;
+}
+
+.ag-steps li.ok::before { content: "✓"; color: #34d399; }
+.ag-steps li.cur { color: var(--ink); }
+.ag-steps li.cur::before { content: "›"; font-weight: 700; }
+
+@keyframes ag-turn {
+  to { transform: rotate(1turn); }
+}
+
+.ag-sess:is([data-state="working"], [data-state="thinking"], [data-state="searching"]) .ag-steps li.cur::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin: 0 1px;
+  border: 1.5px solid #3a3d44;
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: ag-turn 0.9s linear infinite;
+}
+
+/* Folded to the pill, the panel's spinner must not keep the webview repainting. */
+.docked:not(.docked-open) .ag-steps li.cur::before { animation: none; }
+
+.ag-sess[data-state="approval"] .ag-steps li.cur { color: #f5a524; }
+.ag-sess[data-state="approval"] .ag-steps li.cur::before { content: "!"; font-weight: 800; }
+.ag-sess[data-state="question"] .ag-steps li.cur { color: #22d3ee; }
+.ag-sess[data-state="question"] .ag-steps li.cur::before { content: "?"; font-weight: 800; }
+.ag-sess[data-state="error"] .ag-steps li.cur { color: #f4505e; }
+.ag-sess[data-state="error"] .ag-steps li.cur::before { content: "✕"; }
+
+.ag-t {
+  margin-left: auto;
+  flex: none;
+  color: var(--dim-3);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A permission, a question, an end or an error has the whole panel (views/agents.ts dockFull):
+   a bigger title, more air, the whole command. */
+.ag-full .stack {
+  gap: 12px;
+  /* The original's 4 px suit its fixed 160 px card; grown to its content, the card needs air. */
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+  padding-right: 24px !important;
+}
+
+/* Claude's final message, whole: the panel grows with it (up to PANEL_H, then 6 lines). */
+.ag-full .title.one-line {
+  font: 400 14px/1.5 var(--font);
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+}
+
+/* The panel grows with the command, up to PANEL_H: past 8 lines it is cut. */
+.ag-full .code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-height: 136px;
+  overflow: hidden;
+}
+
+.ag-foot {
+  color: var(--dim-3);
+  font-size: 11px;
+}
+
+.ag-side {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 8px;
+}
+
+.ag-plan {
+  justify-content: flex-end;
+  padding-right: 0;
+}
+
+.ag-rows {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+
+.ag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dim);
+  font: 12px var(--font);
+  text-align: left;
+  cursor: default;
+}
+
+.ag-row:hover { background: rgba(255, 255, 255, 0.05); }
+.ag-row.on { background: rgba(255, 255, 255, 0.08); color: var(--ink); }
+
+.ag-row .n {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.ag-row .s {
+  margin-left: auto;
+  flex: none;
+  color: var(--dim-3);
+  font-size: 11px;
+}
+
 /* With the panel open, Mochi stays in the taskbar corner (island/dock-pill.ts). */
 #dock-pill {
   position: absolute;

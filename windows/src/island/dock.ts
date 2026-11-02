@@ -26,6 +26,16 @@ export function dockTone(state: string) {
   return TONES[state] ?? "idle";
 }
 
+/** States in which the last step is still under way: it gets the spinner (or the alert's mark), not a ✓. */
+const UNDER_WAY = new Set(["working", "thinking", "searching", "approval", "question", "error", "ratelimit"]);
+
+/** The agents panel's step list (views/agents.ts): the last `max` steps, ✓ done, the last one current while under way. */
+export function stepMarks(steps: string[], state: string, max: number) {
+  const shown = steps.slice(-max);
+  const current = UNDER_WAY.has(state) ? shown.length - 1 : -1;
+  return shown.map((text, i) => ({ text, now: i === current }));
+}
+
 const TURN_START = new Set(["SessionStart", "UserPromptSubmit"]);
 
 /**
@@ -34,6 +44,22 @@ const TURN_START = new Set(["SessionStart", "UserPromptSubmit"]);
  */
 export function followsActivity(event: string, mode: string, docked = DOCKED) {
   return docked && mode !== "expanded" && TURN_START.has(event);
+}
+
+const turnStarts = new Map<string, number>();
+
+/** When the pill's current turn began (views/agents.ts shows the minutes). */
+export function turnStartedAt(pill: string): number | undefined {
+  return turnStarts.get(pill);
+}
+
+/**
+ * Hears every hook event (island/hooks.ts): notes when a turn starts, and says whether
+ * the pill should come to the front for it.
+ */
+export function dockHook(event: string, pill: string, mode: string, focusId: string | null) {
+  if (event === "UserPromptSubmit") turnStarts.set(pill, Date.now());
+  return followsActivity(event, mode) && focusId !== pill;
 }
 
 /** Mochi pops when another agent takes the front, so the switch is seen (fork-island.css `dock-hop`). */

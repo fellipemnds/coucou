@@ -51,6 +51,27 @@ test("in the taskbar the pill is as wide as what it shows", async () => {
   assert.equal(dockedCompactW(true, true), 172);
 });
 
+test("the agents panel's steps: the last few, done, the last one current while under way", async () => {
+  const { stepMarks } = await import("../src/island/dock.ts");
+  const steps = ["a", "b", "c", "d"];
+  assert.deepEqual(stepMarks(steps, "working", 3), [
+    { text: "b", now: false }, { text: "c", now: false }, { text: "d", now: true },
+  ]);
+  assert.equal(stepMarks(steps, "approval", 5).at(-1).now, true);
+  assert.ok(stepMarks(steps, "finished", 5).every((m) => !m.now));
+  assert.ok(stepMarks(steps, "idle", 5).every((m) => !m.now));
+  assert.deepEqual(stepMarks([], "working", 5), []);
+});
+
+test("a new prompt starts the turn's clock; only a pill not already in front is brought forward", async () => {
+  const { dockHook, turnStartedAt } = await import("../src/island/dock.ts");
+  assert.equal(turnStartedAt("agent_x"), undefined);
+  dockHook("UserPromptSubmit", "agent_x", "compact", "agent_x");
+  assert.ok(Math.abs(turnStartedAt("agent_x") - Date.now()) < 1000);
+  // DOCKED is false under node: nothing is ever brought forward here.
+  assert.equal(dockHook("UserPromptSubmit", "agent_y", "compact", "agent_x"), false);
+});
+
 test("docked, a pill starting a turn comes to the front, never under the open panel", async () => {
   const { followsActivity } = await import("../src/island/dock.ts");
   assert.equal(followsActivity("UserPromptSubmit", "compact", true), true);
