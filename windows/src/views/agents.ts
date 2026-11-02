@@ -53,7 +53,7 @@ function footLine(task: AgentTask): string {
 function elapsed(task: AgentTask): string {
   const start = turnStartedAt(task.id);
   if (start == null || !UNDER_WAY.has(task.state)) return "";
-  return `${Math.max(1, Math.round((Date.now() - start) / 60_000))} min`;
+  return t("{0} min", { 0: Math.max(1, Math.round((Date.now() - start) / 60_000)) });
 }
 
 /** The focused session: Mochi (drawn by the island at MOCHI), project, state, time, steps, agent. */

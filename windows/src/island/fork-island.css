@@ -248,12 +248,13 @@
   -webkit-box-orient: vertical;
 }
 
-/* The panel grows with the command, up to PANEL_H: past 8 lines it is cut. */
+/* The panel grows with the command, up to PANEL_H: past 8 lines it ends in "…", so a cut never looks whole. */
 .ag-full .code {
   white-space: normal;
   overflow-wrap: anywhere;
-  max-height: 136px;
-  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
 }
 
 .ag-foot {

@@ -66,10 +66,13 @@ test("the agents panel's steps: the last few, done, the last one current while u
 test("a new prompt starts the turn's clock; only a pill not already in front is brought forward", async () => {
   const { dockHook, turnStartedAt } = await import("../src/island/dock.ts");
   assert.equal(turnStartedAt("agent_x"), undefined);
-  dockHook("UserPromptSubmit", "agent_x", "compact", "agent_x");
+  dockHook("UserPromptSubmit", "agent_x", "compact", "agent_x", false, true);
   assert.ok(Math.abs(turnStartedAt("agent_x") - Date.now()) < 1000);
-  // DOCKED is false under node: nothing is ever brought forward here.
-  assert.equal(dockHook("UserPromptSubmit", "agent_y", "compact", "agent_x"), false);
+  assert.equal(dockHook("UserPromptSubmit", "agent_x", "compact", "agent_x", false, true), false); // already in front
+  assert.equal(dockHook("UserPromptSubmit", "agent_y", "compact", "agent_x", false, true), true);
+  // A waiting permission keeps the front: its card names the focused pill.
+  assert.equal(dockHook("UserPromptSubmit", "agent_y", "compact", "agent_x", true, true), false);
+  assert.equal(dockHook("UserPromptSubmit", "agent_y", "compact", "agent_x", false, false), false); // not docked
 });
 
 test("docked, a pill starting a turn comes to the front, never under the open panel", async () => {

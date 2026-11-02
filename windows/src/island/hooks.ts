@@ -402,7 +402,12 @@ function handleHook(island: Island, payload: HookPayload) {
     dropPendingCard(island);
   }
 
-  if (dockHook(name, agentId, State.mode, State.focusId)) { ensurePill(); State.setFocus(agentId); popDock(); } // fork: dock.ts
+  // Fork: docked, the agent starting a turn comes to the front (dock.ts).
+  if (dockHook(name, agentId, State.mode, State.focusId, State.pendingApproval != null)) {
+    ensurePill();
+    State.setFocus(agentId);
+    popDock();
+  }
   // Read after the card above is dropped: its pill may have handed the front
   // back to the pill you were on.
   const focused = State.focusId === agentId;

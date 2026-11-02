@@ -1139,8 +1139,8 @@ pub fn run() {
             #[cfg(feature = "speech")]
             let open_window = flow::get(&handle).map(|f| f.store.lock().unwrap().prefs.open_at_launch).unwrap_or(true);
             #[cfg(not(feature = "speech"))]
-            // Fork: no Flow toggle without speech, so the window waits to be asked for (the pill is always shown).
-            let open_window = false;
+            // Fork: no Flow toggle without speech; on Windows the pill is always shown, so the window waits to be asked for.
+            let open_window = !crate::island_dock::ON;
             if open_window && !launched_at_login() {
                 show_hub(&handle, None);
             }

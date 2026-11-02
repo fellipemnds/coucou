@@ -55,12 +55,15 @@ export function turnStartedAt(pill: string): number | undefined {
 
 /**
  * Hears every hook event (island/hooks.ts): notes when a turn starts, and says whether
- * the pill should come to the front for it.
+ * the pill should come to the front for it. A waiting permission or question keeps the front:
+ * its card names the focused pill (as hooks.ts showsAlert).
  */
-export function dockHook(event: string, pill: string, mode: string, focusId: string | null) {
+export function dockHook(event: string, pill: string, mode: string, focusId: string | null, waiting: boolean, docked = DOCKED) {
   if (event === "UserPromptSubmit") turnStarts.set(pill, Date.now());
-  return followsActivity(event, mode) && focusId !== pill;
+  return !waiting && followsActivity(event, mode, docked) && focusId !== pill;
 }
+
+let popEnd = 0;
 
 /** Mochi pops when another agent takes the front, so the switch is seen (fork-island.css `dock-hop`). */
 export function popDock() {
@@ -68,6 +71,9 @@ export function popDock() {
   el.classList.remove("dock-switch");
   void el.offsetWidth; // a reflow, so adding the class again replays the animation
   el.classList.add("dock-switch");
+  // Taken off once played, or every fold of the panel would replay it.
+  clearTimeout(popEnd);
+  popEnd = window.setTimeout(() => el.classList.remove("dock-switch"), 600);
 }
 
 let tone = "";
