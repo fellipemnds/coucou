@@ -16,6 +16,8 @@ import { pillDefinition, sessionSubtitle } from "../core/pills";
 import {
   PlanCard, buildPlanPill, claudePillVisible, codexPillVisible, planCardOpen, refreshCodexPlanUsage,
 } from "./usage";
+import { openClaudePlanCard, refreshUsageEstimate } from "./usage-estimate";
+import { buildWindowCheck } from "./window-check";
 import { buildDiffCard } from "./diff";
 import { lastTextStep } from "../core/diff";
 import { Bridge } from "../core/bridge";
@@ -168,6 +170,8 @@ export function buildHeader(actions: ViewActions): ViewHost {
     // Both pills: the right side tightens so it still clears the screen edge.
     headerActions.classList.toggle("both-plans", claudeOn && codexOn);
     if (claudeOn) claudePill.sync();
+    // Fork: only while open; the compact island refreshes (and alerts) for itself, the hidden one never.
+    if (claudeOn && State.mode === "expanded") refreshUsageEstimate((v) => (v === "overview" ? openClaudePlanCard() : actions.setView(v)));
     if (codexOn) codexPill.sync();
     // Codex is asked when its pill comes into view (stale answers only).
     const shown = codexOn && State.mode === "expanded";
@@ -858,6 +862,7 @@ export function buildViews(
   map.set("wardrobe", buildWardrobe(actions));
   map.set("update", buildUpdate());
   map.set("whatsNew", buildWhatsNew());
+  map.set("windowCheck", buildWindowCheck(actions));
   // Not in the Windows v1: sending a file by email, window attach + web result.
   map.set("mail", buildPlaceholder(tl("Sending by email isn't in this version."), ""));
   map.set("searching", buildPlaceholder(tl("Claude is searching…"), ""));
