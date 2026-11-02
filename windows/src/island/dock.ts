@@ -16,6 +16,24 @@ export function restsStill(mode: string, state: string) {
   return DOCKED && mode === "compact" && RESTING.has(state);
 }
 
+const TONES: Partial<Record<string, string>> = {
+  working: "working", thinking: "working", searching: "working",
+  approval: "approval", question: "question", error: "error", ratelimit: "error", finished: "done",
+};
+
+/** The pill's look for Mochi's state (fork-island.css): only work moves, the alerts have their colour. */
+export function dockTone(state: string) {
+  return TONES[state] ?? "idle";
+}
+
+let tone = "";
+
+/** Sets `data-dock` on the page when the tone changes, so the CSS restyles only then. */
+export function setDockTone(state: string) {
+  const t = dockTone(state);
+  if (DOCKED && t !== tone) document.documentElement.dataset.dock = tone = t;
+}
+
 /** Open, the panel floats above the taskbar, clear of the pill: 32 px pill + 16. `LIFT` in island_dock.rs. */
 export const LIFT = 48;
 
@@ -25,6 +43,16 @@ export function dockedRect(w: number, h: number) {
   // The bottom edge rises with the first LIFT px of growth, so the morph stays continuous.
   const lift = Math.min(LIFT, Math.max(0, h - NOTCH_H));
   return { x: 0, y: vh - h - lift, w, h };
+}
+
+/**
+ * Where the pointer counts as on the island. Open, the panel floats LIFT px above
+ * the pill: the gap and the pill below count too, or moving from the pill to the
+ * panel would leave it, and Open on hover would close it on the way.
+ */
+export function dockedHitRect(r: { x: number; y: number; w: number; h: number }) {
+  const vh = window.innerHeight > 0 ? window.innerHeight : r.y + r.h;
+  return { ...r, h: Math.max(r.h, vh - r.y) };
 }
 
 /** Places the island element at the bottom-left, every corner rounded. */

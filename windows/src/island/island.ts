@@ -26,7 +26,7 @@ import { openClaudePlanCard, refreshUsageEstimate } from "../views/usage-estimat
 import { buildHeader, buildViews, type ViewActions, type ViewHost } from "../views/views";
 import { h } from "../views/dom";
 import { IslandStateMachine } from "./fsm";
-import { DOCKED, dockIsland, dockedCompactW, dockedRect, restsStill } from "./dock";
+import { DOCKED, dockIsland, dockedCompactW, dockedHitRect, dockedRect, restsStill, setDockTone } from "./dock";
 import { DockPill } from "./dock-pill";
 import { refreshHookPills } from "./integrations";
 import { restoreAlertFocus } from "./hooks";
@@ -751,7 +751,9 @@ export class Island {
 
   private animateGeometry(shrinking: boolean) {
     const { w, h, r } = this.targetSize();
-    if (shrinking) {
+    // Fork: docked, the close curve starts slowly and the panel only shrinks once its
+    // content has faded, so it reads as a fade: the spring shrinks from the first frame.
+    if (shrinking && !DOCKED) {
       this.width.curveTowards(w);
       this.height.curveTowards(h);
       this.radius.curveTowards(r);
@@ -942,9 +944,10 @@ export class Island {
       UploadSeq.updateCursor(State.mouseInIsland.x, State.mouseInIsland.y);
     }
 
+    const hit = DOCKED ? dockedHitRect(rect) : rect;
     const inIsland =
-      x >= rect.x - HIT_MARGIN && x <= rect.x + rect.w + HIT_MARGIN &&
-      y >= rect.y - HIT_MARGIN && y <= rect.y + rect.h + HIT_MARGIN;
+      x >= hit.x - HIT_MARGIN && x <= hit.x + hit.w + HIT_MARGIN &&
+      y >= hit.y - HIT_MARGIN && y <= hit.y + hit.h + HIT_MARGIN;
 
     // Recorded before the state machine hears of it: a transition it makes
     // right away (open on hover) reads where the pointer is, and must not see
@@ -1325,6 +1328,7 @@ export class Island {
     }
 
     this.dockPill.sync(State.mode === "expanded", this.engine.bodyColor);
+    setDockTone(State.effectiveState);
     // Docked, the pill follows what it shows (gauge, agents).
     if (DOCKED && State.mode === "compact" && !this.width.animating && Math.abs(this.width.value - this.targetSize().w) > 0.5) {
       this.animateGeometry(false);

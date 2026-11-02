@@ -29,6 +29,8 @@ export class DockPill {
     if (on === this.shown) return;
     this.shown = on;
     this.el.classList.toggle("on", on);
+    // The open panel keeps the original black (fork-island.css).
+    document.documentElement.classList.toggle("docked-open", on);
     if (!on) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     this.canvas.width = Math.round(W * dpr);
