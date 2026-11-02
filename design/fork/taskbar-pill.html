@@ -1,0 +1,499 @@
+<title>Coucou na barra de tarefas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: page chrome on top, then the same 1920×1080 Windows desktop drawn twice (whole screen + close-up of the left corner). */
+:root {
+  color-scheme: dark;
+  --page: #0b0c0e;
+  --ink: #f5f6f8;       /* app tokens, from windows/src/style.css */
+  --dim: #9398a1;
+  --dim-3: #6b7079;
+  --card: #141518;
+  --tab-on: #1d1f23;
+  --amber: #f5a524;
+  --green: #22c55e;
+  --red: #f4505e;
+  --cyan: #22d3ee;
+  --red-text: #ff8d97;
+  --font: system-ui, "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --mono: "Cascadia Mono", Consolas, ui-monospace, monospace;
+}
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+main { max-width: 1100px; margin: 0 auto; display: grid; gap: 20px; }
+h1 { font-size: 1.5rem; font-weight: 650; text-wrap: balance; }
+header p, .hint, figcaption, .notes { color: var(--dim); line-height: 1.5; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.seg > span { color: var(--dim); font-size: 13px; margin-right: 4px; }
+.seg button {
+  font: inherit; font-size: 14px; color: var(--dim); background: var(--card);
+  border: 1px solid #23252a; border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { color: var(--ink); background: var(--tab-on); border-color: #3a3d44; }
+button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+figure { display: grid; gap: 8px; }
+figcaption { font-size: 13px; }
+.view { position: relative; overflow: hidden; border-radius: 10px; border: 1px solid #23252a; }
+.notes { padding-left: 1.2em; display: grid; gap: 6px; max-width: 65ch; }
+
+/* ── The desktop, in real Windows pixels ───────────────────────────────── */
+.desk {
+  position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+  transform-origin: 0 0; overflow: hidden; font-family: var(--font);
+  background: radial-gradient(120% 90% at 70% 110%, #2a4f8f 0, #15264a 40%, #0a1022 75%);
+}
+.win {
+  position: absolute; background: #1f1f22; border: 1px solid #34353a; border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5); overflow: hidden; transition: all .25s ease;
+}
+.win .bar { height: 36px; background: #2a2a2e; display: flex; align-items: center; padding: 0 14px; font-size: 15px; color: #c9cbd1; }
+.win .lines { padding: 28px; display: grid; gap: 14px; }
+.win .lines i { display: block; height: 14px; border-radius: 7px; background: #303137; }
+.w-main { left: 260px; top: 80px; width: 1400px; height: 880px; }
+.w-side { left: 1920px; top: 0; width: 960px; height: 1032px; opacity: 0; }
+.desk[data-split="1"] .w-main { left: 0; top: 0; width: 960px; height: 1032px; border-radius: 0; }
+.desk[data-split="1"] .w-side { left: 960px; opacity: 1; border-radius: 0; }
+
+.taskbar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 48px;
+  background: rgba(28, 30, 36, .92); border-top: 1px solid #2c2e34;
+  display: flex; align-items: center;
+}
+.tb-apps { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+.tb-apps i { width: 40px; height: 40px; border-radius: 6px; display: grid; place-items: center; }
+.tb-apps i::before { content: ""; width: 24px; height: 24px; border-radius: 5px; background: var(--c, #5b8def); }
+.tray { position: absolute; right: 16px; text-align: right; font-size: 12px; line-height: 1.35; color: #e6e7ea; font-variant-numeric: tabular-nums; }
+
+/* ── The pill, where the Windows Widgets button used to be ─────────────── */
+.pill {
+  position: absolute; left: 8px; top: 6px; height: 36px; padding: 0 14px 0 6px;
+  display: flex; align-items: center; gap: 10px; background: #000; color: var(--ink);
+  border: 1px solid #26282d; border-radius: 999px; font: 600 14px var(--font); cursor: pointer;
+}
+.pill .who { display: flex; gap: 3px; }
+.pill .label { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pill .label b { font-weight: 600; }
+.pill .label .busy, .pill .label .ask, .pill .label .qst, .pill .label .fin, .pill .label .bad { display: none; }
+.desk[data-mode="question"] .pill .label .rest { display: none; }
+.desk[data-mode="question"] .pill .label .qst { display: inline; color: var(--cyan); }
+.desk[data-mode="working"] .pill .label .rest { display: none; }
+.desk[data-mode="working"] .pill .label .busy { display: inline; }
+.desk[data-mode="approval"] .pill { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(245,165,36,.18); }
+.desk[data-mode="approval"] .pill .label .rest { display: none; }
+.desk[data-mode="approval"] .pill .label .ask { display: inline; color: var(--amber); }
+
+/* Mochi, simplified: the real one is drawn in code in the app. */
+.mochi {
+  --s: 96px; --top: #fbf7f2; --bot: #9cc8ff; --glow: rgba(120,170,255,.35);
+  position: relative; flex: none; width: var(--s); height: calc(var(--s) * .78);
+  border-radius: 44% 44% 38% 38% / 52% 52% 40% 40%;
+  background:
+    radial-gradient(circle at 22% 66%, #f4b4bf 0 6%, transparent 7%),
+    radial-gradient(circle at 78% 66%, #f4b4bf 0 6%, transparent 7%),
+    linear-gradient(var(--top) 0 32%, var(--bot));
+  box-shadow: 0 0 calc(var(--s) * .3) var(--glow);
+}
+.mochi::before, .mochi::after {
+  content: ""; position: absolute; top: 56%; width: 9%; height: 13%; background: #121316; border-radius: 50%;
+}
+.mochi::before { left: 33%; } .mochi::after { right: 33%; }
+.mochi.sm { --s: 28px; }
+.mochi.xs { --s: 14px; box-shadow: none; }
+.mochi.teal { --top: #7ee0c3; --bot: #2aa585; --glow: rgba(42,165,133,.35); }
+.mochi.gold { --top: #f8d27a; --bot: #d99a2b; --glow: rgba(217,154,43,.35); }
+.mochi.violet { --top: #c9b6ff; --bot: #8b6cf0; --glow: rgba(139,108,240,.35); }
+.desk[data-mode="working"] .mochi.me { animation: bob 1.6s ease-in-out infinite; }
+.desk[data-mode="approval"] .pill .mochi::after { animation: none; }
+.badge { position: absolute; left: -4px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--amber); color: #000; font: 800 10px/14px var(--font); text-align: center; display: none; }
+.badge::before { content: "!"; }
+.desk[data-mode="approval"] .badge { display: block; }
+.desk[data-mode="question"] .pill .badge { display: block; background: var(--cyan); }
+.desk[data-mode="question"] .pill .badge::before { content: "?"; }
+.mochi:not(.sm) > .badge { width: 28px; height: 28px; font-size: 18px; line-height: 28px; left: -2px; top: -2px; box-shadow: 0 0 0 3px #000; }
+@keyframes bob { 50% { transform: translateY(-8%); } }
+
+/* ── The open panel rises from the pill, above the taskbar ─────────────── */
+.panel {
+  position: absolute; left: 8px; bottom: 56px; width: 720px; height: 320px; padding: 10px 12px 12px;
+  background: #000; border: 1px solid #26282d; border-radius: 22px; color: var(--ink);
+  display: grid; grid-template-rows: 40px 1fr; gap: 8px;
+  transform-origin: 40px 100%; transform: translateY(16px) scale(.9); opacity: 0; pointer-events: none;
+  transition: transform .22s cubic-bezier(.2,.9,.3,1.2), opacity .16s;
+  box-shadow: 0 24px 60px rgba(0,0,0,.55);
+}
+.desk[data-open="1"] .panel { transform: none; opacity: 1; pointer-events: auto; }
+.ptop { display: flex; align-items: center; gap: 6px; }
+.ptop .tab { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #b9bcc3; }
+.ptop .tab.on { background: var(--tab-on); color: var(--ink); }
+.ptop .count { margin-left: auto; color: var(--dim); font-size: 15px; padding-right: 8px; }
+.pbody { display: grid; grid-template-columns: 1.12fr 1fr; gap: 12px; min-height: 0; }
+.card { background: var(--card); border: 1px solid #1f2125; border-radius: 20px; padding: 18px; min-width: 0; }
+.session { display: flex; gap: 18px; align-items: center; }
+.session .txt { display: grid; gap: 10px; min-width: 0; font-size: 15px; }
+.session .head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.session .head b { font-size: 16px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); }
+.desk[data-mode="working"] .dot { background: var(--red); }
+.step { color: var(--dim-3); display: flex; gap: 8px; }
+.step.now { color: var(--ink); }
+.approval { display: none; gap: 12px; align-content: start; }
+.approval p { color: var(--dim); font-size: 14px; }
+.approval code { font: 14px var(--mono); background: #0b0c0e; border-radius: 10px; padding: 10px 12px; color: #e6e7ea; overflow-wrap: anywhere; }
+.approval .btns { display: flex; gap: 8px; }
+.approval .btns span { flex: 1; text-align: center; padding: 9px; border-radius: 12px; font-size: 14px; font-weight: 600; background: var(--tab-on); }
+.approval .btns .yes { background: var(--amber); color: #000; }
+.desk[data-mode="approval"] .session { display: none; }
+.desk[data-mode="approval"] .approval { display: grid; }
+.agents { display: grid; gap: 10px; align-content: start; }
+.agent { display: flex; align-items: center; gap: 10px; padding: 7px 14px 7px 8px; border-radius: 999px; font-size: 15px; border: 1px solid; width: fit-content; }
+.agent.teal { color: #7ee0c3; background: rgba(42,165,133,.12); border-color: rgba(42,165,133,.4); }
+.agent.gold { color: #f8d27a; background: rgba(217,154,43,.12); border-color: rgba(217,154,43,.4); }
+.agent.violet { color: #c9b6ff; background: rgba(139,108,240,.12); border-color: rgba(139,108,240,.4); }
+.plan { margin-top: 4px; font-size: 13px; color: var(--dim); display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
+.plan .track { height: 6px; border-radius: 3px; background: #23252a; overflow: hidden; }
+.plan .track i { display: block; width: 64%; height: 100%; background: var(--ink); border-radius: 3px; }
+
+/* ── Iridescence variants (D = today's look) ───────────────────────────── */
+@property --ang { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@keyframes spin { to { --ang: 360deg; } }
+.desk * { --iri: conic-gradient(from var(--ang), #ff9ad5, #a78bfa, #67e8f9, #86efac, #fde68a, #ff9ad5); }
+
+/* A: thin iridescent edge; it turns only while the panel is open or Mochi works. */
+.desk[data-variant="a"] .pill { border: 2px solid transparent; background: linear-gradient(#000, #000) padding-box, var(--iri) border-box; }
+.desk[data-variant="a"] .panel { border: 2px solid transparent; background: linear-gradient(#000, #000) padding-box, var(--iri) border-box; }
+.desk[data-variant="a"][data-open="1"] .panel,
+.desk[data-variant="a"][data-mode="working"] .pill { animation: spin 6s linear infinite; }
+
+/* B: dark glass with a still iridescent sheen; no motion at all. */
+.desk[data-variant="b"] .pill,
+.desk[data-variant="b"] .panel,
+.desk[data-variant="e"] .pill,
+.desk[data-variant="e"] .panel {
+  background:
+    linear-gradient(135deg, rgba(255,154,213,.13), rgba(167,139,250,.08) 35%, rgba(103,232,249,.12) 70%, rgba(253,230,138,.08)),
+    rgba(12,13,16,.7);
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  border-color: rgba(255,255,255,.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 24px 60px rgba(0,0,0,.45);
+}
+.desk[data-variant="b"] .card,
+.desk[data-variant="e"] .card { background: rgba(20,21,24,.55); border-color: rgba(255,255,255,.06); }
+
+/* E: B's glass always; A's edge and C's Mochi only while Claude works, so the shimmer means "working". */
+/* The edge is a masked ring on top, so the iridescence never shows through the glass. */
+.desk[data-variant="e"][data-mode="working"] .pill,
+.desk[data-variant="e"][data-mode="working"] .panel { border-color: transparent; animation: spin 6s linear infinite; }
+.desk[data-variant="e"][data-mode="working"] .pill::before,
+.desk[data-variant="e"][data-mode="working"] .panel::before {
+  content: ""; position: absolute; inset: -1px; padding: 1px; border-radius: inherit; pointer-events: none;
+  background: var(--iri);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* C: today's look, but Mochi turns iridescent while he works. */
+.desk[data-variant="c"][data-mode="working"] .mochi.me,
+.desk[data-variant="e"][data-mode="working"] .mochi.me {
+  --glow: rgba(196,181,253,.45);
+  background:
+    radial-gradient(circle at 22% 66%, #f4b4bf 0 6%, transparent 7%),
+    radial-gradient(circle at 78% 66%, #f4b4bf 0 6%, transparent 7%),
+    linear-gradient(rgba(251,247,242,.95) 0 26%, rgba(251,247,242,0) 78%),
+    conic-gradient(from var(--ang) at 50% 75%, #ffb3dc, #c4b5fd, #a5f3fc, #bbf7d0, #fde68a, #ffb3dc);
+  animation: bob 1.6s ease-in-out infinite, spin 4s linear infinite;
+}
+
+/* Approval stays amber and a question cyan in every variant: the alert wins over the shimmer. */
+.desk[data-mode="approval"][data-variant] .pill { border-color: var(--amber); }
+.desk[data-mode="question"][data-variant] .pill { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(34,211,238,.18); }
+
+/* ── Inner screens: home, question, chat ───────────────────────────────── */
+.ptop .tab[data-tab] { cursor: pointer; }
+.desk[data-tab="home"] .tab[data-tab="home"],
+.desk[data-tab="chat"] .tab[data-tab="chat"] { background: var(--tab-on); color: var(--ink); }
+.valert, .vchat, .vplan { display: none; min-height: 0; }
+.desk[data-mode="question"] .pbody, .desk[data-mode="done"] .pbody, .desk[data-mode="error"] .pbody { display: none; }
+.desk[data-mode="question"] .vquestion, .desk[data-mode="done"] .vdone, .desk[data-mode="error"] .verror { display: grid; }
+.desk:not([data-tab="home"]) .pbody, .desk:not([data-tab="home"]) .valert { display: none; }
+.desk[data-tab="chat"] .vchat, .desk[data-tab="plan"] .vplan { display: grid; }
+
+.valert { grid-template-columns: 1fr auto; gap: 12px; }
+.qcard { --wash: rgba(34,211,238,.16); position: relative; overflow: hidden; display: flex; gap: 20px; align-items: center; }
+.vdone .qcard { --wash: rgba(34,197,94,.16); }
+.verror .qcard { --wash: rgba(244,80,94,.18); }
+.qcard::after { content: ""; position: absolute; inset: auto 0 0 0; height: 55%; pointer-events: none;
+  background: radial-gradient(60% 100% at 50% 100%, var(--wash), transparent); }
+.qcard .err { color: var(--red-text); font-size: 15px; line-height: 1.4; }
+.acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.acts span { padding: 9px 18px; border-radius: 999px; background: #26282d; font-size: 15px; }
+.acts .main { background: var(--ink); color: #000; }
+.verror .qcard .head .dot { background: var(--amber); }
+
+/* Mochi's faces for "done" (happy arcs) and "error" (flat eyes, pink). */
+.mochi.happy::before, .mochi.happy::after { background: none; border: 3px solid #121316; border-bottom: 0; border-radius: 12px 12px 0 0; width: 14%; height: 8%; top: 58%; }
+.mochi.flat { --bot: #f3a5ad; --glow: rgba(244,80,94,.3); }
+.mochi.flat::before, .mochi.flat::after { width: 14%; height: 4%; top: 62%; border-radius: 2px; }
+.badge.ok { display: block; background: var(--green); }
+.badge.ok::before { content: "✓"; }
+.badge.err { display: block; background: var(--red); }
+
+.desk[data-mode="done"][data-variant] .pill { border-color: var(--green); }
+.desk[data-mode="error"][data-variant] .pill { border-color: var(--red); box-shadow: 0 0 0 3px rgba(244,80,94,.18); }
+.desk[data-mode="done"] .pill .label .rest, .desk[data-mode="error"] .pill .label .rest { display: none; }
+.desk[data-mode="done"] .pill .label .fin { display: inline; color: var(--green); }
+.desk[data-mode="error"] .pill .label .bad { display: inline; color: var(--red-text); }
+.desk[data-mode="done"] .pill .badge { display: block; background: var(--green); }
+.desk[data-mode="done"] .pill .badge::before { content: "✓"; }
+.desk[data-mode="error"] .pill .badge { display: block; background: var(--red); }
+
+/* Plan card: the estimate from step 3. */
+.plan { cursor: pointer; }
+.vplan { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 12px; align-content: start; }
+.pcard { display: grid; gap: 10px; align-content: start; }
+.pcard .k { color: var(--dim); font-size: 14px; }
+.pcard .big { font-size: 44px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.pcard .bar { height: 6px; border-radius: 3px; background: #23252a; overflow: hidden; }
+.pcard .bar i { display: block; height: 100%; border-radius: 3px; background: var(--ink); }
+.pcard .sub { color: var(--dim); font-size: 14px; font-variant-numeric: tabular-nums; }
+.vplan .foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; color: var(--dim-3); font-size: 13px; padding: 0 6px; }
+.vplan .foot span:last-child { color: var(--ink); background: #26282d; padding: 8px 14px; border-radius: 999px; font-size: 14px; }
+.qcard .txt { display: grid; gap: 12px; min-width: 0; position: relative; z-index: 1; }
+.qcard .head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 15px; color: var(--dim); }
+.qcard .head b { color: var(--ink); font-size: 16px; }
+.qcard .head .dot { background: #2dd4a7; }
+.qcard h3 { font-size: 22px; font-weight: 700; line-height: 1.25; text-wrap: balance; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips span { padding: 9px 16px; border-radius: 999px; background: #26282d; font-size: 15px; }
+.side-agents { display: grid; gap: 14px; align-content: start; padding-top: 14px; }
+.badge.q { display: block; background: var(--cyan); }
+.badge.q::before { content: "?"; }
+
+.vchat { grid-template-rows: 1fr auto; gap: 10px; }
+.msgs { display: flex; flex-direction: column; gap: 12px; justify-content: end; min-height: 0; overflow: auto; font-size: 15px; line-height: 1.45; }
+.msg.me { align-self: flex-end; max-width: 70%; background: var(--tab-on); padding: 9px 14px; border-radius: 16px 16px 4px 16px; }
+.msg.bot { display: flex; gap: 10px; align-items: flex-start; max-width: 85%; }
+.msg.bot .mochi { margin-top: 3px; }
+.composer { display: flex; gap: 8px; align-items: center; }
+.composer .field { flex: 1; min-width: 0; padding: 11px 16px; border-radius: 999px; background: var(--card); border: 1px solid #23252a; color: var(--dim-3); font-size: 15px; }
+.composer .send { width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: #000; display: grid; place-items: center; flex: none; }
+.desk[data-variant="b"] .composer .field,
+.desk[data-variant="e"] .composer .field { background: rgba(20,21,24,.55); border-color: rgba(255,255,255,.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .win, .panel { transition: none; }
+  .desk * { animation: none !important; }
+}
+</style>
+
+<main>
+  <header>
+    <h1>Coucou na barra de tarefas</h1>
+    <p>Protótipo da etapa 4: o formato e quatro visuais para escolher.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" data-key="mode">
+      <span>Estado</span>
+      <button type="button" id="m-idle" data-val="idle" aria-pressed="true">Parado</button>
+      <button type="button" id="m-working" data-val="working" aria-pressed="false">Trabalhando</button>
+      <button type="button" id="m-approval" data-val="approval" aria-pressed="false">Pedindo aprovação</button>
+      <button type="button" id="m-question" data-val="question" aria-pressed="false">Pergunta</button>
+      <button type="button" id="m-done" data-val="done" aria-pressed="false">Terminou</button>
+      <button type="button" id="m-error" data-val="error" aria-pressed="false">Erro</button>
+    </div>
+    <div class="seg" data-key="split">
+      <span>Tela</span>
+      <button type="button" id="s-0" data-val="0" aria-pressed="true">Uma janela</button>
+      <button type="button" id="s-1" data-val="1" aria-pressed="false">Dividida</button>
+    </div>
+    <div class="seg" data-key="variant">
+      <span>Visual</span>
+      <button type="button" id="v-d" data-val="d" aria-pressed="false">D · Hoje</button>
+      <button type="button" id="v-a" data-val="a" aria-pressed="false">A · Borda</button>
+      <button type="button" id="v-b" data-val="b" aria-pressed="false">B · Vidro</button>
+      <button type="button" id="v-c" data-val="c" aria-pressed="false">C · Mochi</button>
+      <button type="button" id="v-e" data-val="e" aria-pressed="true">E · Mistura</button>
+    </div>
+  </div>
+  <p class="hint">Toque na pílula preta, no canto esquerdo da barra, para abrir o painel. Toque fora para fechar. No painel, o balão abre o chat, a linha "Plano" abre o card do plano e a casinha volta ao início.</p>
+
+  <figure>
+    <div class="view" data-region="0,0,1920,1080"></div>
+    <figcaption>A tela inteira (1920 × 1080).</figcaption>
+  </figure>
+  <figure>
+    <div class="view" data-region="0,560,900,520"></div>
+    <figcaption>De perto: o canto esquerdo da barra, onde ficavam os Widgets do Windows.</figcaption>
+  </figure>
+
+  <ul class="notes">
+    <li>Fechada: Mochi, as bolinhas dos agentes e o uso do plano. Pedindo aprovação, ela fica âmbar.</li>
+    <li>Aberta: o mesmo painel de hoje (720 × 320), subindo de cima da barra.</li>
+    <li>Com a tela dividida, nenhuma janela cobre a pílula.</li>
+    <li><b>D · Hoje:</b> o preto do Coucou atual, para comparar.</li>
+    <li><b>A · Borda:</b> contorno fino furta-cor. Gira só com o painel aberto ou o Mochi trabalhando.</li>
+    <li><b>B · Vidro:</b> fundo escuro translúcido com um reflexo furta-cor parado. Nenhum movimento.</li>
+    <li><b>C · Mochi:</b> o visual de hoje, e o Mochi fica furta-cor quando trabalha (escolha "Trabalhando").</li>
+    <li><b>E · Mistura:</b> sempre o vidro do B; a borda do A e o Mochi do C só aparecem quando o Claude trabalha. Pedindo aprovação, âmbar.</li>
+  </ul>
+</main>
+
+<template id="desk">
+  <div class="desk" data-mode="idle" data-split="0" data-open="0" data-variant="e" data-tab="home">
+    <div class="win w-main"><div class="bar">QualityHub · Visual Studio Code</div>
+      <div class="lines"><i style="width:40%"></i><i style="width:72%"></i><i style="width:58%"></i><i style="width:80%"></i><i style="width:35%"></i></div></div>
+    <div class="win w-side"><div class="bar">Claude</div>
+      <div class="lines"><i style="width:65%"></i><i style="width:50%"></i><i style="width:76%"></i></div></div>
+
+    <div class="panel">
+      <div class="ptop">
+        <span class="tab" data-tab="home" role="button" aria-label="Início"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 3 10.5V21h6.5v-6h5v6H21V10.5z"/></svg></span>
+        <span class="tab" data-tab="chat" role="button" aria-label="Chat"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v12H8l-4 4z"/></svg></span>
+        <span class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span>
+        <span class="count">3 em andamento</span>
+      </div>
+      <div class="pbody">
+        <div class="card">
+          <div class="session">
+            <div class="mochi me"></div>
+            <div class="txt">
+              <div class="head"><span class="dot"></span><b>QualityHub</b><span style="color:var(--dim)">Claude Code</span></div>
+              <div class="step">✓ Ler o schema do banco</div>
+              <div class="step now">› Rodar os testes de login</div>
+              <div class="step">▢ Revisar o diff</div>
+            </div>
+          </div>
+          <div class="approval">
+            <p>QualityHub · Claude Code quer rodar</p>
+            <code>npm run test -- login</code>
+            <div class="btns"><span>Recusar</span><span class="yes">Aprovar</span></div>
+          </div>
+        </div>
+        <div class="card agents">
+          <span class="agent teal"><span class="mochi xs teal"></span>QualityHub</span>
+          <span class="agent gold"><span class="mochi xs gold"></span>Coucou</span>
+          <span class="agent violet"><span class="mochi xs violet"></span>Paperclip</span>
+          <div class="plan" data-tab="plan" role="button"><span>Plano · 5 h · 64% · renova 21:59 ›</span><span class="track"><i></i></span></div>
+        </div>
+      </div>
+
+      <div class="valert vdone">
+        <div class="card qcard">
+          <div class="mochi happy"><span class="badge ok"></span></div>
+          <div class="txt">
+            <div class="head"><span class="dot"></span><b>QualityHub</b><span>Claude Code terminou</span></div>
+            <h3>Testes de login passando: 14 de 14.</h3>
+            <div class="acts"><span class="main">Ver o terminal</span><span>OK</span></div>
+          </div>
+        </div>
+        <div class="side-agents"><span class="mochi sm teal"></span><span class="mochi sm gold"></span><span class="mochi sm violet"></span></div>
+      </div>
+
+      <div class="valert verror">
+        <div class="card qcard">
+          <div class="mochi flat"><span class="badge err"></span></div>
+          <div class="txt">
+            <div class="head"><span class="dot"></span><b>Coucou</b><span>Claude Code</span></div>
+            <h3>A sessão parou.</h3>
+            <p class="err">O npm run tauri dev falhou: a porta 1420 já está em uso. Feche o outro Coucou e tente de novo.</p>
+            <div class="acts"><span class="main">Tentar de novo</span><span>Ver o terminal</span></div>
+          </div>
+        </div>
+        <div class="side-agents"><span class="mochi sm teal"></span><span class="mochi sm gold"></span><span class="mochi sm violet"></span></div>
+      </div>
+
+      <div class="vplan">
+        <div class="card pcard">
+          <span class="k">Janela de 5 horas</span>
+          <span class="big">64%</span>
+          <span class="bar"><i style="width:64%"></i></span>
+          <span class="sub">Renova às 21:59 · em 1 h 12 min</span>
+        </div>
+        <div class="card pcard">
+          <span class="k">Semana</span>
+          <span class="big">37%</span>
+          <span class="bar"><i style="width:37%"></i></span>
+          <span class="sub">Renova sexta, 05:00</span>
+        </div>
+        <div class="foot"><span>Estimado pelos históricos das sessões · calibrado em 63%</span><span>Calibrar</span></div>
+      </div>
+
+      <div class="valert vquestion">
+        <div class="card qcard">
+          <div class="mochi"><span class="badge q"></span></div>
+          <div class="txt">
+            <div class="head"><span class="dot"></span><b>QualityHub</b><span>Claude Code te faz uma pergunta</span></div>
+            <h3>Qual banco usar nos testes de login?</h3>
+            <div class="chips"><span>SQLite em memória</span><span>Postgres no Docker</span><span>Mock do ORM</span></div>
+          </div>
+        </div>
+        <div class="side-agents"><span class="mochi sm teal"></span><span class="mochi sm gold"></span><span class="mochi sm violet"></span></div>
+      </div>
+
+      <div class="vchat">
+        <div class="msgs">
+          <div class="msg me">Quanto ainda tenho da cota de 5 h?</div>
+          <div class="msg bot"><span class="mochi xs"></span><span>Você usou 64% da janela de 5 h. Ela renova às 21:59, daqui a 1 h 12 min.</span></div>
+          <div class="msg me">Então dá para terminar o protótipo hoje.</div>
+        </div>
+        <div class="composer">
+          <span class="field">Escreva para o Claude…</span>
+          <span class="send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="taskbar">
+      <button type="button" class="pill" aria-label="Abrir o Coucou">
+        <span class="mochi sm me"><span class="badge"></span></span>
+        <span class="who"><span class="mochi xs teal"></span><span class="mochi xs gold"></span><span class="mochi xs violet"></span></span>
+        <span class="label"><span class="rest">Claude <b>64%</b></span><span class="busy">Trabalhando · 64%</span><span class="ask">Aprovar?</span><span class="qst">Pergunta</span><span class="fin">Terminou</span><span class="bad">Erro</span></span>
+      </button>
+      <div class="tb-apps"><i style="--c:#4aa3ff"></i><i style="--c:#8a8f99"></i><i style="--c:#f2c94c"></i><i style="--c:#3c8dde"></i><i style="--c:#e8743b"></i><i style="--c:#d97757"></i></div>
+      <div class="tray"><div>21:58</div><div>01/11/2026</div></div>
+    </div>
+  </div>
+</template>
+
+<script>
+const views = [...document.querySelectorAll('.view')];
+const tpl = document.getElementById('desk');
+views.forEach(v => v.appendChild(tpl.content.cloneNode(true)));
+const desks = () => document.querySelectorAll('.desk');
+const set = (key, val) => desks().forEach(d => { d.dataset[key] = val; });
+
+function fit() {
+  views.forEach(v => {
+    const [x, y, w, h] = v.dataset.region.split(',').map(Number);
+    const s = v.clientWidth / w;
+    v.style.height = h * s + 'px';
+    v.firstElementChild.style.transform = `scale(${s}) translate(${-x}px, ${-y}px)`;
+  });
+}
+new ResizeObserver(fit).observe(document.querySelector('main'));
+fit();
+
+document.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  set(seg.dataset.key, b.dataset.val);
+}));
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.desk')) return;
+  const tab = e.target.closest('.panel [data-tab]');
+  if (tab) set('tab', tab.dataset.tab);
+  else if (e.target.closest('.pill')) set('open', desks()[0].dataset.open === '1' ? '0' : '1');
+  else if (!e.target.closest('.panel')) set('open', '0');
+});
+</script>
