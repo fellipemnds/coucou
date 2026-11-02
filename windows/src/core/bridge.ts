@@ -9,6 +9,7 @@ import type { Settings } from "./state";
 import type { RecapHistory, RecapPrefs } from "../recap/summary";
 import type { SpotifyState } from "./spotify";
 import type { UpdateStatus } from "./update";
+import type { UsageEstimate } from "./usage-estimate";
 import type { WaIslandView, WaSettingsView, WaTestResult } from "./whatsapp";
 
 export const IS_TAURI =
@@ -304,6 +305,8 @@ export const Bridge = {
    * is missing, not signed in or slow (15 s).
    */
   codexPlanUsage: () => call<unknown>("codex_plan_usage"),
+  /** Fork: the plan usage summed from Claude Code's session logs (core/usage-estimate.ts). */
+  usageEstimate: (weekStart: number) => call<UsageEstimate>("usage_estimate", { weekStart }),
 
   approvalDecision: (requestId: string, decision: "allow" | "deny") =>
     call<void>("approval_decision", { requestId, decision }),

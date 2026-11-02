@@ -22,6 +22,7 @@ import { USC, UploadSeq } from "../upload/sequence";
 import { dominantPct, planColor } from "../core/plan";
 import { tl } from "../i18n/i18n";
 import { claudeCompactPillVisible, closePlanCard, openPlanColor, planCardOpen } from "../views/usage";
+import { openClaudePlanCard, refreshUsageEstimate } from "../views/usage-estimate";
 import { buildHeader, buildViews, type ViewActions, type ViewHost } from "../views/views";
 import { h } from "../views/dom";
 import { IslandStateMachine } from "./fsm";
@@ -1303,6 +1304,10 @@ export class Island {
     this.compactPlan.style.opacity = showPlan ? "1" : "0";
     this.compactPlan.style.pointerEvents = showPlan ? "auto" : "none";
     if (showPlan) {
+      refreshUsageEstimate((view) => {
+        this.alert(view);
+        if (view === "overview") openClaudePlanCard();
+      });
       const others = State.otherTasks.slice(0, 4);
       this.compactPlan.style.right = others.length > 0 ? "58px" : "20px";
       const pct = dominantPct(State.planUsage);

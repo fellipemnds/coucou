@@ -42,6 +42,7 @@ mod speech;
 mod spotify;
 mod tray;
 mod update;
+mod usage_estimate;
 #[cfg(feature = "speech")]
 mod voice;
 #[cfg(windows)]
@@ -942,6 +943,7 @@ pub fn run() {
             status_line_preview,
             status_line_apply,
             codex_plan_usage,
+            usage_estimate::usage_estimate,
             approval_decision,
             approval_answer,
             approval_ack,

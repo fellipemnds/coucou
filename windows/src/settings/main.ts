@@ -28,6 +28,8 @@ import { WHATSAPP_ID } from "../core/whatsapp";
 import { updateRows, updatesListener } from "./updates";
 import { colorDot } from "./colors";
 import { renderDiff, statusDot } from "./parts";
+import { estimateRows } from "./usage-estimate";
+import { estimateCalibrated } from "../core/usage-estimate";
 import {
   LANGUAGES, N_, isRtl, onLanguageChange, resolveLanguage, setLanguage, systemLanguages, t, tn,
 } from "../i18n/i18n";
@@ -283,7 +285,7 @@ function planSection(status: HookStatus): HTMLElement {
       if (!on) {
         settings.showPlanInNotch = false;
         void save();
-      } else if (status.planRelayInstalled) {
+      } else if (status.planRelayInstalled || estimateCalibrated()) {
         settings.showPlanInNotch = true;
         void save();
       } else {
@@ -299,7 +301,7 @@ function planSection(status: HookStatus): HTMLElement {
       if (!on) {
         settings.showPlanInCompactIsland = false;
         void save();
-      } else if (status.planRelayInstalled) {
+      } else if (status.planRelayInstalled || estimateCalibrated()) {
         settings.showPlanInCompactIsland = true;
         void save();
       } else {
@@ -316,6 +318,7 @@ function planSection(status: HookStatus): HTMLElement {
         text: PLAN_SETTINGS_TEXT.claude,
       }),
       h("div", { class: "hint", text: PLAN_SETTINGS_TEXT.claudeCli }),
+      ...estimateRows(redraw),
       h("div", { class: "row" }, h("label", { text: PLAN_SETTINGS_TEXT.showClaude }), sw),
       h("div", { class: "row" }, h("label", { text: PLAN_SETTINGS_TEXT.showClaudeCompact }), swCompact),
       h("div", { class: "row" },

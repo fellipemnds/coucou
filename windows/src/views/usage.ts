@@ -16,6 +16,7 @@ import {
   type CodexPlanUsage, type PlanUsage, type PlanWindow,
 } from "../core/plan";
 import { State } from "../core/state";
+import { estimateCalibrated } from "../core/usage-estimate";
 import { clear, dot, h, svg } from "./dom";
 import { ICONS } from "./icons";
 import { language, tl } from "../i18n/i18n";
@@ -23,13 +24,13 @@ import { language, tl } from "../i18n/i18n";
 /** The Claude pill is in the header: overview, turned on, relay in. */
 export function claudePillVisible(): boolean {
   const s = State.settings;
-  return State.view === "overview" && s.showPlanInNotch && s.planRelayInstalled;
+  return State.view === "overview" && s.showPlanInNotch && (s.planRelayInstalled || estimateCalibrated());
 }
 
 /** The compact island's Claude plan gauge: compact mode, turned on, relay in. */
 export function claudeCompactPillVisible(): boolean {
   const s = State.settings;
-  return State.mode === "compact" && s.showPlanInCompactIsland && s.planRelayInstalled;
+  return State.mode === "compact" && s.showPlanInCompactIsland && (s.planRelayInstalled || estimateCalibrated());
 }
 
 /** The Codex pill is in the header: overview, turned on (nothing to install). */
@@ -42,7 +43,7 @@ export function planCardOpen(): boolean {
   if (!State.showingPlanDetail) return false;
   if (State.planDetailIsCodex) return codexPillVisible();
   const s = State.settings;
-  return State.view === "overview" && (s.showPlanInNotch || s.showPlanInCompactIsland) && s.planRelayInstalled;
+  return State.view === "overview" && (s.showPlanInNotch || s.showPlanInCompactIsland) && (s.planRelayInstalled || estimateCalibrated());
 }
 
 const claudeColor = (now = Date.now()) => planColor(dominantPct(State.planUsage, now));

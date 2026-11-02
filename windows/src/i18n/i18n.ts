@@ -17,6 +17,7 @@
 
 import MAC from "./strings.json";
 import EXTRA from "./extra.json";
+import FORK from "./fork.json"; // fork: strings of the fork's own features
 
 export const LANGUAGE_CODES = ["en", "zh-Hans", "hi", "es", "ar", "fr", "bn", "pt-BR", "ru", "id", "de", "tr", "ko", "ja"] as const;
 export type Language = (typeof LANGUAGE_CODES)[number];
@@ -48,6 +49,7 @@ type Table = Record<string, Entry>;
 const TABLE: Table = {
   ...((MAC as { strings: Table }).strings),
   ...((EXTRA as { strings: Table }).strings),
+  ...((FORK as { strings: Table }).strings),
 };
 
 let current: Language = "en";
