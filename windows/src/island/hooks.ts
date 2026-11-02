@@ -15,6 +15,7 @@ import type { Island } from "./island";
 import { parseClaudePlan, restorePlanUsage } from "../core/plan";
 import { setClaudePlanUsage, storedClaudePlanUsage } from "../views/usage";
 import { N_, t } from "../i18n/i18n";
+import { followsActivity, popDock } from "./dock";
 
 const CLAUDE_ID = "integration_claude";
 const CURSOR_ID = "agent_cursor";
@@ -401,6 +402,7 @@ function handleHook(island: Island, payload: HookPayload) {
     dropPendingCard(island);
   }
 
+  if (followsActivity(name, State.mode) && State.focusId !== agentId) { ensurePill(); State.setFocus(agentId); popDock(); } // fork: dock.ts
   // Read after the card above is dropped: its pill may have handed the front
   // back to the pill you were on.
   const focused = State.focusId === agentId;

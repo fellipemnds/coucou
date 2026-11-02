@@ -26,6 +26,24 @@ export function dockTone(state: string) {
   return TONES[state] ?? "idle";
 }
 
+const TURN_START = new Set(["SessionStart", "UserPromptSubmit"]);
+
+/**
+ * The pill shows only the focused pill's Mochi: a pill whose agent starts a turn
+ * comes to the front, unless the panel is open (that would pull it from under the user).
+ */
+export function followsActivity(event: string, mode: string, docked = DOCKED) {
+  return docked && mode !== "expanded" && TURN_START.has(event);
+}
+
+/** Mochi pops when another agent takes the front, so the switch is seen (fork-island.css `dock-hop`). */
+export function popDock() {
+  const el = document.documentElement;
+  el.classList.remove("dock-switch");
+  void el.offsetWidth; // a reflow, so adding the class again replays the animation
+  el.classList.add("dock-switch");
+}
+
 let tone = "";
 
 /** Sets `data-dock` on the page when the tone changes, so the CSS restyles only then. */

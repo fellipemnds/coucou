@@ -19,7 +19,7 @@
 }
 
 /* Variant E on the pill (data-dock, dock.ts setDockTone): while Claude works, a 1 px
-   iridescent ring turns (6 s) and Mochi shimmers (4 s); an alert wins with its colour;
+   iridescent ring turns (3 s) and Mochi shimmers (2 s); an alert wins with its colour;
    resting, nothing moves. The ring is a masked ::before so the colours never show
    through the glass (prototype, version 7). */
 @property --dock-ang {
@@ -52,11 +52,29 @@
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: dock-spin 6s linear infinite;
+  animation: dock-spin 3s linear infinite;
 }
 
 .docked[data-dock="working"]:not(.docked-open) #bot-canvas {
-  animation: dock-shimmer 4s linear infinite;
+  animation: dock-shimmer 2s linear infinite;
+}
+
+/* Another agent took the front (dock.ts popDock): Mochi shrinks and springs back. The
+   shimmer is listed again, or the hop would replace it while Claude works. */
+@keyframes dock-hop {
+  0% { scale: 0.55; opacity: 0.3; }
+  60% { scale: 1.15; opacity: 1; }
+  100% { scale: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .docked.dock-switch:not(.docked-open) #bot-canvas {
+    animation: dock-hop 0.5s ease-out;
+  }
+
+  .docked.dock-switch[data-dock="working"]:not(.docked-open) #bot-canvas {
+    animation: dock-hop 0.5s ease-out, dock-shimmer 2s linear infinite;
+  }
 }
 
 .docked[data-dock="approval"]:not(.docked-open) #island {

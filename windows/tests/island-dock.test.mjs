@@ -50,3 +50,12 @@ test("in the taskbar the pill is as wide as what it shows", async () => {
   assert.equal(dockedCompactW(true, false), 134);
   assert.equal(dockedCompactW(true, true), 172);
 });
+
+test("docked, a pill starting a turn comes to the front, never under the open panel", async () => {
+  const { followsActivity } = await import("../src/island/dock.ts");
+  assert.equal(followsActivity("UserPromptSubmit", "compact", true), true);
+  assert.equal(followsActivity("SessionStart", "hidden", true), true);
+  assert.equal(followsActivity("PreToolUse", "compact", true), false);
+  assert.equal(followsActivity("UserPromptSubmit", "expanded", true), false);
+  assert.equal(followsActivity("UserPromptSubmit", "compact", false), false);
+});
