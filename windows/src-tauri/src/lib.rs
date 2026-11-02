@@ -18,6 +18,7 @@ mod i18n;
 mod identity;
 mod integrations;
 mod island;
+mod island_dock;
 mod local_chat;
 mod log;
 mod mail;
@@ -1138,7 +1139,8 @@ pub fn run() {
             #[cfg(feature = "speech")]
             let open_window = flow::get(&handle).map(|f| f.store.lock().unwrap().prefs.open_at_launch).unwrap_or(true);
             #[cfg(not(feature = "speech"))]
-            let open_window = true;
+            // Fork: no Flow toggle without speech, so the window waits to be asked for (the pill is always shown).
+            let open_window = false;
             if open_window && !launched_at_login() {
                 show_hub(&handle, None);
             }

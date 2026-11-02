@@ -26,6 +26,8 @@ import { openClaudePlanCard, refreshUsageEstimate } from "../views/usage-estimat
 import { buildHeader, buildViews, type ViewActions, type ViewHost } from "../views/views";
 import { h } from "../views/dom";
 import { IslandStateMachine } from "./fsm";
+import { DOCKED, dockIsland, dockedCompactW, dockedRect, restsStill } from "./dock";
+import { DockPill } from "./dock-pill";
 import { refreshHookPills } from "./integrations";
 import { restoreAlertFocus } from "./hooks";
 import { DesktopLink } from "./desktop";
@@ -51,7 +53,7 @@ const PRE_PROGRESS = USC.T_PROG_START - USC.T_DROP;
 const modeOrder = (m: IslandMode) => (m === "hidden" ? 0 : m === "compact" ? 1 : 2);
 
 export class Island {
-  readonly fsm = new IslandStateMachine();
+  readonly fsm = Object.assign(new IslandStateMachine(), { neverHides: DOCKED });
   /** Mochi on the desktop: his life cycle and the drag out of the island. */
   readonly desktop: DesktopLink;
 
@@ -84,6 +86,7 @@ export class Island {
   private botSize = new Spring(10);
 
   private engine = new BotEngine();
+  private dockPill = new DockPill();
   private greeting = new Greeting();
   private greetingShown = false;
   private seasons = new SeasonCache();
@@ -364,7 +367,7 @@ export class Island {
     this.greetingCanvas.style.width = `${EXPANDED_W}px`;
     this.greetingCanvas.style.height = "150px";
 
-    this.root.append(this.wakeStrip, this.islandEl);
+    this.root.append(this.wakeStrip, this.islandEl, this.dockPill.el);
     this.applyGeometry();
   }
 
@@ -736,6 +739,9 @@ export class Island {
 
   private targetSize(): { w: number; h: number; r: number } {
     let { w, h } = islandSize(State.mode, State.view, State.chatHistory.length);
+    if (DOCKED && State.mode === "compact") {
+      w = dockedCompactW(claudeCompactPillVisible(), State.otherTasks.length > 0);
+    }
     if (State.mode === "expanded" && State.view === "question" && State.pendingApproval?.questions) {
       h = QUESTION_PICKER_H;
     }
@@ -774,9 +780,9 @@ export class Island {
     this.uploadCanvas.el.style.left = `${(w - EXPANDED_W) / 2}px`;
 
     const viewportW = window.innerWidth > 0 ? window.innerWidth : PANEL_W;
-    const rect = { x: (viewportW - w) / 2, y: 0, w, h: hh };
+    const rect = DOCKED ? dockIsland(this.islandEl, w, hh, r) : { x: (viewportW - w) / 2, y: 0, w, h: hh };
     const p = this.pushedRect;
-    if (Math.abs(p.x - rect.x) > 0.5 || Math.abs(p.w - rect.w) > 0.5 || Math.abs(p.h - rect.h) > 0.5) {
+    if (Math.abs(p.x - rect.x) > 0.5 || Math.abs(p.y - rect.y) > 0.5 || Math.abs(p.w - rect.w) > 0.5 || Math.abs(p.h - rect.h) > 0.5) {
       this.pushedRect = rect;
       void Bridge.setIslandRect(rect.x, rect.y, rect.w, rect.h);
     }
@@ -787,6 +793,7 @@ export class Island {
     const w = this.width.value;
     const hh = this.height.value;
     const viewportW = window.innerWidth > 0 ? window.innerWidth : PANEL_W;
+    if (DOCKED) return dockedRect(w, hh);
     return { x: (viewportW - w) / 2, y: 0, w, h: hh };
   }
 
@@ -1096,6 +1103,7 @@ export class Island {
     // spends most of its life in. Geometry still has to finish retracting.
     const settling =
       this.width.animating || this.height.animating || this.radius.animating;
+    this.engine.still = restsStill(State.mode, State.effectiveState);
     const busy = State.mode === "hidden"
       ? settling
       : settling ||
@@ -1316,6 +1324,11 @@ export class Island {
       this.compactPlanLabel.textContent = pct != null ? `${Math.round(pct)}%` : "—";
     }
 
+    this.dockPill.sync(State.mode === "expanded", this.engine.bodyColor);
+    // Docked, the pill follows what it shows (gauge, agents).
+    if (DOCKED && State.mode === "compact" && !this.width.animating && Math.abs(this.width.value - this.targetSize().w) > 0.5) {
+      this.animateGeometry(false);
+    }
     this.updateClock();
 
     syncMiniBotStates(State.tasks);

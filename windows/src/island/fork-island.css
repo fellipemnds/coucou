@@ -1,0 +1,62 @@
+/* Fork: the docked pill and its panel are dark glass over the desktop, as in
+   design/fork/taskbar-pill.html (variant E). No blur: the webview cannot see behind
+   its window, and the system Acrylic would blur the whole 720×368 window, not the
+   pill (plan, etapa 5, T3). */
+
+.docked {
+  --glass:
+    linear-gradient(135deg, rgba(255, 154, 213, 0.1), rgba(167, 139, 250, 0.06) 35%,
+      rgba(103, 232, 249, 0.09) 70%, rgba(253, 230, 138, 0.06)),
+    linear-gradient(180deg, rgba(30, 32, 38, 0.9), rgba(8, 9, 12, 0.95));
+  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  /* The cards let the glass through, like the prototype's. */
+  --card: rgba(20, 21, 24, 0.55);
+  --card-flat: rgba(14, 15, 17, 0.55);
+}
+
+.docked #island {
+  background: var(--glass);
+  box-shadow: var(--glass-edge), 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* The 2×2 agents fill the 32 px pill edge to edge: smaller, they get some air. */
+.docked #mini-grid {
+  transform: scale(0.8);
+}
+
+/* The pill is as wide as its content (dock.ts dockedCompactW), and the taskbar has its own clock. */
+.docked #island-clock {
+  display: none;
+}
+
+/* The play button's icon is drawn in the card colour: keep it solid. */
+.docked .np-play {
+  color: #0e0f11;
+}
+
+/* With the panel open, Mochi stays in the taskbar corner (island/dock-pill.ts). */
+#dock-pill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  /* The compact pill with Mochi alone: he stays where he was when the panel opens. */
+  width: 80px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--glass);
+  box-shadow: var(--glass-edge);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.16s;
+}
+
+#dock-pill.on {
+  opacity: 1;
+}
+
+#dock-pill canvas {
+  width: 33px;
+  height: 32px;
+}
