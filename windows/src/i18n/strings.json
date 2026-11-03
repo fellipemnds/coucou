@@ -92,6 +92,21 @@
    "ko": "5시간",
    "ja": "5 時間"
   },
+  "6 keys at most.": {
+   "zh-Hans": "最多 6 个键。",
+   "hi": "अधिकतम 6 कुंजियाँ।",
+   "es": "6 teclas como máximo.",
+   "ar": "6 مفاتيح كحد أقصى.",
+   "fr": "6 touches maximum.",
+   "bn": "সর্বোচ্চ ৬টি কী।",
+   "pt-BR": "No máximo 6 teclas.",
+   "ru": "Не больше 6 клавиш.",
+   "id": "Maksimal 6 tombol.",
+   "de": "Höchstens 6 Tasten.",
+   "tr": "En fazla 6 tuş.",
+   "ko": "최대 6개 키까지입니다.",
+   "ja": "最大6キーまでです。"
+  },
   "7 days": {
    "zh-Hans": "7 天",
    "hi": "7 दिन",
@@ -421,6 +436,21 @@
    "tr": "Önce Ayarlar → Sohbet bölümünden Anthropic API anahtarını ekle.",
    "ko": "먼저 설정 → 채팅에서 Anthropic API 키를 넣어 주세요.",
    "ja": "先に設定 → チャットで Anthropic API キーを追加してください。"
+  },
+  "Add ⌃, ⌥, ⌘ or fn, so this key still types.": {
+   "zh-Hans": "请加上 ⌃、⌥、⌘ 或 fn，这个键才能照常打字。",
+   "hi": "⌃, ⌥, ⌘ या fn जोड़ें, ताकि यह कुंजी लिखती रहे।",
+   "es": "Añade ⌃, ⌥, ⌘ o fn para que esta tecla siga escribiendo.",
+   "ar": "أضف ⌃ أو ⌥ أو ⌘ أو fn لكي يبقى هذا المفتاح يكتب.",
+   "fr": "Ajoute ⌃, ⌥, ⌘ ou fn, pour que cette touche écrive encore.",
+   "bn": "⌃, ⌥, ⌘ বা fn যোগ করুন, যাতে এই কীটি লিখতে পারে।",
+   "pt-BR": "Adicione ⌃, ⌥, ⌘ ou fn para que esta tecla continue digitando.",
+   "ru": "Добавьте ⌃, ⌥, ⌘ или fn, чтобы эта клавиша по-прежнему печатала.",
+   "id": "Tambahkan ⌃, ⌥, ⌘, atau fn agar tombol ini tetap bisa mengetik.",
+   "de": "Füge ⌃, ⌥, ⌘ oder fn hinzu, damit diese Taste weiter tippt.",
+   "tr": "Bu tuş yazmaya devam etsin diye ⌃, ⌥, ⌘ veya fn ekle.",
+   "ko": "이 키로 계속 입력할 수 있도록 ⌃, ⌥, ⌘ 또는 fn을 추가하세요.",
+   "ja": "このキーで文字を入力できるよう、⌃・⌥・⌘・fn のいずれかを加えてください。"
   },
   "Advertisement": {
    "zh-Hans": "广告",
@@ -1442,6 +1472,21 @@
    "ko": "계획 수정",
    "ja": "プランを変更"
   },
+  "Change shortcut…": {
+   "zh-Hans": "更改快捷键…",
+   "hi": "शॉर्टकट बदलें…",
+   "es": "Cambiar atajo…",
+   "ar": "تغيير الاختصار…",
+   "fr": "Modifier le raccourci…",
+   "bn": "শর্টকাট বদলান…",
+   "pt-BR": "Alterar atalho…",
+   "ru": "Изменить сочетание…",
+   "id": "Ubah pintasan…",
+   "de": "Kurzbefehl ändern …",
+   "tr": "Kısayolu değiştir…",
+   "ko": "단축키 변경…",
+   "ja": "ショートカットを変更…"
+  },
   "Chat": {
    "zh-Hans": "聊天",
    "hi": "चैट",
@@ -1861,6 +1906,21 @@
    "tr": "Geçmişi temizle",
    "ko": "기록 지우기",
    "ja": "履歴を消去"
+  },
+  "Click to record": {
+   "zh-Hans": "点按以录制",
+   "hi": "रिकॉर्ड करने के लिए क्लिक करें",
+   "es": "Haz clic para grabar",
+   "ar": "انقر للتسجيل",
+   "fr": "Clique pour l'enregistrer",
+   "bn": "রেকর্ড করতে ক্লিক করুন",
+   "pt-BR": "Clique para gravar",
+   "ru": "Нажмите, чтобы записать",
+   "id": "Klik untuk merekam",
+   "de": "Zum Aufnehmen klicken",
+   "tr": "Kaydetmek için tıkla",
+   "ko": "클릭해서 기록",
+   "ja": "クリックして記録"
   },
   "Close": {
    "zh-Hans": "关闭",
@@ -2521,6 +2581,36 @@
    "tr": "Para birimi",
    "ko": "표시 통화",
    "ja": "通貨"
+  },
+  "Custom shortcut": {
+   "zh-Hans": "自定快捷键",
+   "hi": "अपना शॉर्टकट",
+   "es": "Atajo personalizado",
+   "ar": "اختصار مخصص",
+   "fr": "Raccourci perso",
+   "bn": "নিজস্ব শর্টকাট",
+   "pt-BR": "Atalho personalizado",
+   "ru": "Своё сочетание клавиш",
+   "id": "Pintasan khusus",
+   "de": "Eigener Kurzbefehl",
+   "tr": "Özel kısayol",
+   "ko": "사용자 지정 단축키",
+   "ja": "カスタムショートカット"
+  },
+  "Custom shortcut…": {
+   "zh-Hans": "自定快捷键…",
+   "hi": "अपना शॉर्टकट…",
+   "es": "Atajo personalizado…",
+   "ar": "اختصار مخصص…",
+   "fr": "Raccourci perso…",
+   "bn": "নিজস্ব শর্টকাট…",
+   "pt-BR": "Atalho personalizado…",
+   "ru": "Своё сочетание…",
+   "id": "Pintasan khusus…",
+   "de": "Eigener Kurzbefehl …",
+   "tr": "Özel kısayol…",
+   "ko": "사용자 지정 단축키…",
+   "ja": "カスタムショートカット…"
   },
   "Custom…": {
    "zh-Hans": "自定义…",
@@ -3197,6 +3287,21 @@
    "ko": "Esc",
    "ja": "Esc"
   },
+  "Esc, Return and Caps Lock can't be part of it.": {
+   "zh-Hans": "Esc、Return 和大写锁定键不能包含在内。",
+   "hi": "Esc, Return और Caps Lock इसका हिस्सा नहीं हो सकते।",
+   "es": "Esc, Intro y Bloq Mayús no pueden formar parte.",
+   "ar": "لا يمكن أن يكون Esc أو Return أو Caps Lock جزءًا منه.",
+   "fr": "Esc, Entrée et Verr. Maj ne peuvent pas en faire partie.",
+   "bn": "Esc, Return এবং Caps Lock এর অংশ হতে পারে না।",
+   "pt-BR": "Esc, Return e Caps Lock não podem fazer parte dele.",
+   "ru": "Esc, Return и Caps Lock не могут входить в сочетание.",
+   "id": "Esc, Return, dan Caps Lock tidak bisa menjadi bagiannya.",
+   "de": "Esc, Return und die Feststelltaste können nicht dazugehören.",
+   "tr": "Esc, Return ve Caps Lock bunun parçası olamaz.",
+   "ko": "Esc, Return, Caps Lock은 포함할 수 없습니다.",
+   "ja": "Esc、Return、Caps Lock は使えません。"
+  },
   "Everything stays on your Mac. Tell the people in the call that you are recording.": {
    "zh-Hans": "一切都留在你的 Mac 上。请告知通话中的人你正在录音。",
    "hi": "सब कुछ आपके Mac पर रहता है। कॉल में लोगों को बताएँ कि आप रिकॉर्ड कर रहे हैं।",
@@ -3827,6 +3932,21 @@
    "ko": "키를 누르고 있으면 어디서나 받아쓰기",
    "ja": "キーを押したままでどこでも口述"
   },
+  "Hold these keys together to dictate, up to 6.": {
+   "zh-Hans": "同时按住这些键即可听写，最多 6 个。",
+   "hi": "डिक्टेट करने के लिए ये कुंजियाँ एक साथ दबाए रखें, अधिकतम 6।",
+   "es": "Mantén estas teclas a la vez para dictar, hasta 6.",
+   "ar": "اضغط مع الاستمرار على هذه المفاتيح معًا للإملاء، حتى 6 مفاتيح.",
+   "fr": "Maintiens ces touches ensemble pour dicter, jusqu'à 6.",
+   "bn": "ডিক্টেট করতে এই কীগুলো একসাথে চেপে ধরুন, সর্বোচ্চ ৬টি।",
+   "pt-BR": "Segure estas teclas juntas para ditar, até 6.",
+   "ru": "Удерживайте эти клавиши вместе, чтобы диктовать, до 6.",
+   "id": "Tahan tombol-tombol ini bersamaan untuk mendikte, hingga 6.",
+   "de": "Halte diese Tasten zusammen gedrückt, um zu diktieren – bis zu 6.",
+   "tr": "Dikte etmek için bu tuşları birlikte basılı tut, en fazla 6.",
+   "ko": "이 키들을 함께 누르고 있으면 받아쓰기합니다. 최대 6개.",
+   "ja": "これらのキーを同時に押し続けると音声入力します（最大6個）。"
+  },
   "Hold to dictate": {
    "zh-Hans": "按住听写",
    "hi": "डिक्टेट करने के लिए दबाए रखें",
@@ -3841,6 +3961,21 @@
    "tr": "Dikte etmek için basılı tut",
    "ko": "누르고 있는 동안 받아쓰기",
    "ja": "押したまま口述"
+  },
+  "Hold your keys together, then let go.": {
+   "zh-Hans": "同时按住你的按键，然后松开。",
+   "hi": "अपनी कुंजियाँ एक साथ दबाए रखें, फिर छोड़ दें।",
+   "es": "Mantén tus teclas a la vez y luego suéltalas.",
+   "ar": "اضغط مع الاستمرار على مفاتيحك معًا، ثم اتركها.",
+   "fr": "Maintiens tes touches ensemble, puis relâche.",
+   "bn": "আপনার কীগুলো একসাথে চেপে ধরুন, তারপর ছেড়ে দিন।",
+   "pt-BR": "Segure suas teclas juntas e depois solte.",
+   "ru": "Удерживайте клавиши вместе, затем отпустите.",
+   "id": "Tahan tombol-tombolmu bersamaan, lalu lepaskan.",
+   "de": "Halte deine Tasten zusammen gedrückt, dann lass los.",
+   "tr": "Tuşlarını birlikte basılı tut, sonra bırak.",
+   "ko": "키들을 함께 누른 다음 떼세요.",
+   "ja": "キーを同時に押し続けてから、離してください。"
   },
   "Hold {0} and talk: the image and your words go in together.": {
    "zh-Hans": "按住 {0} 说话：图片和你的话会一起发出。",
@@ -5447,6 +5582,21 @@
    "ko": "사운드 음소거/음소거 해제",
    "ja": "サウンドをミュート／解除"
   },
+  "Mute the Mac while you dictate": {
+   "zh-Hans": "听写时将 Mac 静音",
+   "hi": "डिक्टेशन के दौरान Mac म्यूट करें",
+   "es": "Silenciar el Mac mientras dictas",
+   "ar": "كتم صوت الماك أثناء الإملاء",
+   "fr": "Couper le son du Mac pendant la dictée",
+   "bn": "ডিক্টেশনের সময় Mac মিউট করুন",
+   "pt-BR": "Silenciar o Mac enquanto você dita",
+   "ru": "Выключать звук Mac во время диктовки",
+   "id": "Bisukan Mac saat mendikte",
+   "de": "Mac beim Diktieren stummschalten",
+   "tr": "Dikte ederken Mac'in sesini kapat",
+   "ko": "받아쓰는 동안 Mac 음소거",
+   "ja": "音声入力中は Mac を消音"
+  },
   "My PRs": {
    "zh-Hans": "我的 PR",
    "hi": "मेरे PR",
@@ -5971,6 +6121,21 @@
    "tr": "Henüz özet yok.",
    "ko": "아직 요약이 없어요.",
    "ja": "要約はまだありません。"
+  },
+  "No text field here": {
+   "zh-Hans": "这里没有文本框",
+   "hi": "यहाँ कोई टेक्स्ट फ़ील्ड नहीं है",
+   "es": "Aquí no hay campo de texto",
+   "ar": "لا يوجد حقل نص هنا",
+   "fr": "Pas de zone de texte ici",
+   "bn": "এখানে কোনো টেক্সট ফিল্ড নেই",
+   "pt-BR": "Não há campo de texto aqui",
+   "ru": "Здесь нет текстового поля",
+   "id": "Tidak ada kolom teks di sini",
+   "de": "Hier gibt es kein Textfeld",
+   "tr": "Burada metin alanı yok",
+   "ko": "여기에는 텍스트 입력란이 없습니다",
+   "ja": "ここにはテキスト欄がありません"
   },
   "No text field here? Your words are copied: click where you want them and press ⌘V.": {
    "zh-Hans": "这里没有文本框？你的话已拷贝：点按想要的位置并按 ⌘V。",
@@ -9842,6 +10007,21 @@
    "ko": "그러면",
    "ja": "実行"
   },
+  "This key alone is in every shortcut: add another one.": {
+   "zh-Hans": "这个键单独用于所有快捷键：请再加一个。",
+   "hi": "यह कुंजी अकेले हर शॉर्टकट में आती है: एक और जोड़ें।",
+   "es": "Esta tecla sola está en todos los atajos: añade otra.",
+   "ar": "هذا المفتاح وحده يُستخدم في كل الاختصارات: أضف مفتاحًا آخر.",
+   "fr": "Cette touche seule sert à tous les raccourcis : ajoutes-en une autre.",
+   "bn": "এই কীটি একা সব শর্টকাটে ব্যবহৃত হয়: আরেকটি কী যোগ করুন।",
+   "pt-BR": "Esta tecla sozinha está em todos os atalhos: adicione outra.",
+   "ru": "Эта клавиша есть во всех сочетаниях: добавьте ещё одну.",
+   "id": "Tombol ini sendirian dipakai di semua pintasan: tambahkan satu lagi.",
+   "de": "Diese Taste allein steckt in jedem Kurzbefehl: Füge eine weitere hinzu.",
+   "tr": "Bu tuş tek başına her kısayolda var: bir tane daha ekle.",
+   "ko": "이 키 하나는 모든 단축키에 쓰입니다. 하나 더 추가하세요.",
+   "ja": "このキー単体はあらゆるショートカットで使われます。もう1つ加えてください。"
+  },
   "This message has no text.": {
    "zh-Hans": "这封邮件没有正文。",
    "hi": "इस संदेश में कोई टेक्स्ट नहीं है।",
@@ -10396,6 +10576,21 @@
    "tr": "VIP {0}",
    "ko": "VIP {0}",
    "ja": "VIP {0}"
+  },
+  "Videos, music and calls go quiet while Coucou listens, then the sound comes back.": {
+   "zh-Hans": "Coucou 聆听期间，视频、音乐和通话都会静音，结束后声音恢复。",
+   "hi": "जब तक Coucou सुनता है, वीडियो, संगीत और कॉल चुप रहते हैं, फिर आवाज़ लौट आती है।",
+   "es": "Los vídeos, la música y las llamadas se callan mientras Coucou escucha, y luego vuelve el sonido.",
+   "ar": "تصمت الفيديوهات والموسيقى والمكالمات بينما يستمع Coucou، ثم يعود الصوت.",
+   "fr": "Vidéos, musique et appels se taisent pendant que Coucou écoute, puis le son revient.",
+   "bn": "Coucou শোনার সময় ভিডিও, গান ও কল চুপ থাকে, তারপর শব্দ ফিরে আসে।",
+   "pt-BR": "Vídeos, músicas e chamadas ficam em silêncio enquanto o Coucou escuta, depois o som volta.",
+   "ru": "Видео, музыка и звонки замолкают, пока Coucou слушает, а затем звук возвращается.",
+   "id": "Video, musik, dan panggilan diam selama Coucou mendengarkan, lalu suaranya kembali.",
+   "de": "Videos, Musik und Anrufe verstummen, solange Coucou zuhört, danach ist der Ton wieder da.",
+   "tr": "Coucou dinlerken videolar, müzik ve aramalar susar, sonra ses geri gelir.",
+   "ko": "Coucou가 듣는 동안 동영상, 음악, 통화 소리가 꺼졌다가 다시 돌아옵니다.",
+   "ja": "Coucou が聞いている間は動画・音楽・通話の音が止まり、終わると元に戻ります。"
   },
   "Voice": {
    "zh-Hans": "声音",
@@ -11327,6 +11522,21 @@
    "ko": "내 요금제 · {0}",
    "ja": "あなたのプラン · {0}"
   },
+  "Your shortcut": {
+   "zh-Hans": "你的快捷键",
+   "hi": "आपका शॉर्टकट",
+   "es": "Tu atajo",
+   "ar": "اختصارك",
+   "fr": "Ton raccourci",
+   "bn": "আপনার শর্টকাট",
+   "pt-BR": "Seu atalho",
+   "ru": "Ваше сочетание",
+   "id": "Pintasanmu",
+   "de": "Dein Kurzbefehl",
+   "tr": "Kısayolun",
+   "ko": "내 단축키",
+   "ja": "あなたのショートカット"
+  },
   "Your voice is turned into text by your Mac's speech recognition, on-device when your Mac supports it; Coucou sends it nowhere. After pasting, the clipboard gets back what it held.": {
    "zh-Hans": "你的声音由 Mac 的语音识别转成文字，Mac 支持时在设备上完成；Coucou 不会把它发送到任何地方。粘贴之后，剪贴板会恢复原来的内容。",
    "hi": "आपकी आवाज़ को आपके Mac की वाक् पहचान टेक्स्ट में बदलती है, जब आपका Mac समर्थन करे तो डिवाइस पर ही; Coucou इसे कहीं नहीं भेजता। चिपकाने के बाद क्लिपबोर्ड में पहले वाली चीज़ वापस आ जाती है।",
@@ -12256,6 +12466,21 @@
    "tr": "« OK Coucou » — sesle etkinleştirme ifadesi",
    "ko": "« OK Coucou » — 음성 호출어",
    "ja": "「OK Coucou」— 音声ウェイクワード"
+  },
+  "↩ to save · Esc to cancel": {
+   "zh-Hans": "↩ 保存 · Esc 取消",
+   "hi": "सहेजने के लिए ↩ · रद्द करने के लिए Esc",
+   "es": "↩ para guardar · Esc para cancelar",
+   "ar": "↩ للحفظ · Esc للإلغاء",
+   "fr": "↩ pour valider · Esc pour annuler",
+   "bn": "সংরক্ষণ করতে ↩ · বাতিল করতে Esc",
+   "pt-BR": "↩ para salvar · Esc para cancelar",
+   "ru": "↩ — сохранить · Esc — отмена",
+   "id": "↩ untuk simpan · Esc untuk batal",
+   "de": "↩ zum Sichern · Esc zum Abbrechen",
+   "tr": "Kaydetmek için ↩ · İptal için Esc",
+   "ko": "↩ 저장 · Esc 취소",
+   "ja": "↩ で保存・Esc でキャンセル"
   },
   "✓ Amp plugin installed in ~/.config/amp/plugins/coucou.ts": {
    "zh-Hans": "✓ Amp 插件已安装至 ~/.config/amp/plugins/coucou.ts",
