@@ -29,6 +29,8 @@ export class IslandStateMachine {
   greetHoverCollapseDelay = 10;
   /** An alert waiting for an answer stays open, even when the mouse leaves. */
   pinned = false;
+  /** Fork: docked in the taskbar, the island folds to the compact pill instead of hiding. */
+  neverHides = false;
   /**
    * Hovering opens the island all the way instead of peeking (Settings →
    * General → Open on hover, off by default), as IslandStateMachine.openOnHover.
@@ -205,6 +207,7 @@ export class IslandStateMachine {
   }
 
   private transition(next: FsmState) {
+    if (next === "hidden" && this.neverHides) next = "petit";
     if (next === this.state) return;
     const from = this.state;
     this.state = next;

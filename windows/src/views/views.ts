@@ -18,6 +18,7 @@ import {
 } from "./usage";
 import { openClaudePlanCard, refreshUsageEstimate } from "./usage-estimate";
 import { buildWindowCheck } from "./window-check";
+import { dockFull, dockOverview } from "./agents";
 import { buildDiffCard } from "./diff";
 import { lastTextStep } from "../core/diff";
 import { Bridge } from "../core/bridge";
@@ -845,12 +846,12 @@ export function buildViews(
   onChatHeightChange: () => void,
 ): Map<IslandViewName, ViewHost> {
   const map = new Map<IslandViewName, ViewHost>();
-  map.set("overview", buildOverview(actions));
+  map.set("overview", dockOverview(buildOverview(actions), actions)); // fork: views/agents.ts
   map.set("empty", buildEmpty(actions));
-  map.set("approval", buildApproval(actions));
-  map.set("question", buildQuestion(actions));
-  map.set("error", buildError(actions));
-  map.set("finished", buildFinished(actions));
+  map.set("approval", dockFull(buildApproval(actions), "approval")); // fork: views/agents.ts, as the 3 below
+  map.set("question", dockFull(buildQuestion(actions), "question"));
+  map.set("error", dockFull(buildError(actions), "error"));
+  map.set("finished", dockFull(buildFinished(actions), "finished"));
   map.set("confused", buildConfused());
   map.set("note", buildNote());
   map.set("settings", buildSettings(actions));

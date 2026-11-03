@@ -288,6 +288,114 @@ figcaption { font-size: 13px; }
 .desk[data-variant="b"] .composer .field,
 .desk[data-variant="e"] .composer .field { background: rgba(20,21,24,.55); border-color: rgba(255,255,255,.08); }
 
+/* ── Version 8: the agents panel, after NotchNook. The panel keeps today's black (chosen 02/11), the pill its glass. ── */
+.vnook, .nbar { display: none; }
+.desk[data-layout="nook"] .ptop,
+.desk[data-layout="nook"] .pbody,
+.desk[data-layout="nook"] .valert { display: none; }
+.desk[data-layout="nook"][data-tab="home"] .vnook { display: grid; }
+.desk[data-layout="nook"] .nbar { display: flex; }
+/* Height is the content's: the tallest card (a question) plus the icon bar, so no state leaves a hole. */
+.desk[data-layout="nook"][data-variant] .panel {
+  height: auto; padding: 12px; gap: 10px; grid-template-rows: auto 36px;
+  background: #000; backdrop-filter: none; -webkit-backdrop-filter: none;
+  border-color: #26282d; box-shadow: 0 24px 60px rgba(0,0,0,.55); animation: none;
+}
+.desk[data-layout="nook"][data-variant] .panel::before { display: none; }
+.desk[data-layout="nook"][data-variant] .card { background: var(--card); border-color: #1f2125; padding: 18px 20px; }
+.desk[data-layout="nook"] .vchat, .desk[data-layout="nook"] .vplan { min-height: 219px; }
+/* The chat has no card around it: its own inset keeps the bubbles off the panel's rounded edge. */
+.desk[data-layout="nook"] .vchat { padding: 14px 14px 0; box-sizing: border-box; }
+
+.vnook { grid-template-columns: minmax(0, 1fr) 300px; gap: 10px; min-height: 219px; }
+.nsess { display: grid; grid-template-rows: auto auto 1fr; gap: 16px; }
+.nfoot { align-self: end; color: var(--dim-3); font-size: 13px; }
+.desk[data-layout="nook"] .pcard { gap: 8px; }
+.nhead { display: flex; align-items: center; gap: 10px; font-size: 15px; min-width: 0; }
+.nhead b { font-size: 17px; }
+.nhead .st { color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.nhead .st > span { display: none; }
+.desk[data-mode="idle"] .st .s-idle, .desk[data-mode="working"] .st .s-working,
+.desk[data-mode="approval"] .st .s-approval, .desk[data-mode="question"] .st .s-question,
+.desk[data-mode="done"] .st .s-done, .desk[data-mode="error"] .st .s-error { display: inline; }
+.desk[data-mode="approval"] .st { color: var(--amber); }
+.desk[data-mode="question"] .st { color: var(--cyan); }
+.desk[data-mode="done"] .st { color: var(--green); }
+.desk[data-mode="error"] .st { color: var(--red-text); }
+.nhead .t { margin-left: auto; flex: none; color: var(--dim-3); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.nsteps { list-style: none; margin: 0; padding: 0 0 0 4px; display: grid; gap: 10px; align-content: start; font-size: 15px; }
+.nsteps li { display: flex; gap: 12px; align-items: center; color: var(--dim-3); min-width: 0; }
+.nsteps li::before { content: "○"; width: 14px; flex: none; text-align: center; }
+.nsteps li.ok { color: var(--dim); }
+.nsteps li.ok::before { content: "✓"; color: var(--green); }
+.nsteps li.now { color: var(--ink); }
+.nsteps li.now::before { content: "›"; font-weight: 700; }
+.nsteps code { font: 14px var(--mono); }
+.desk[data-mode="working"] .nsteps li.now::before {
+  content: ""; width: 10px; height: 10px; margin: 0 2px; border: 2px solid #3a3d44; border-top-color: var(--ink);
+  border-radius: 50%; animation: turn .9s linear infinite;
+}
+.desk[data-mode="approval"] .nsteps li.now { color: var(--amber); }
+.desk[data-mode="approval"] .nsteps li.now::before { content: "!"; font-weight: 800; }
+.desk[data-mode="question"] .nsteps li.now { color: var(--cyan); }
+.desk[data-mode="question"] .nsteps li.now::before { content: "?"; font-weight: 800; }
+.desk[data-mode="done"] .nsteps li { color: var(--dim); }
+.desk[data-mode="done"] .nsteps li::before { content: "✓"; color: var(--green); }
+.desk[data-mode="error"] .nsteps li.now { color: var(--red-text); }
+.desk[data-mode="error"] .nsteps li.now::before { content: "✕"; }
+@keyframes turn { to { transform: rotate(1turn); } }
+
+.nside > div { display: none; gap: 12px; align-content: start; }
+.desk[data-mode="idle"] .ns-list, .desk[data-mode="working"] .ns-list,
+.desk[data-mode="approval"] .ns-approval, .desk[data-mode="question"] .ns-question,
+.desk[data-mode="done"] .ns-done, .desk[data-mode="error"] .ns-error { display: grid; }
+.nk { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.nk .tag { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 800 12px var(--font); color: #000; }
+.ns-approval .tag { background: var(--amber); }
+.ns-question .tag { background: var(--cyan); }
+.ns-done .tag { background: var(--green); }
+.ns-error .tag { background: var(--red); }
+.nsub { color: var(--dim); font-size: 13px; }
+.nside p { margin: 0; font-size: 15px; line-height: 1.4; }
+.nside code { font: 14px var(--mono); background: #0b0c0e; border: 1px solid #1f2125; border-radius: 10px; padding: 9px 11px; color: #e6e7ea; overflow-wrap: anywhere; }
+.nbtns { display: flex; gap: 6px; }
+.nbtns span { flex: 1; text-align: center; padding: 8px 4px; border-radius: 999px; background: #26282d; font-size: 14px; font-weight: 600; }
+.nbtns .yes { background: var(--amber); color: #000; }
+.nbtns .main { background: var(--ink); color: #000; }
+.nchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.nchips span { padding: 5px 11px; border-radius: 999px; background: #26282d; font-size: 13px; }
+/* A question, an end or an error is the whole panel: the session card steps aside. */
+.desk[data-mode="question"] .vnook, .desk[data-mode="done"] .vnook, .desk[data-mode="error"] .vnook { grid-template-columns: 1fr; }
+.desk[data-mode="question"] .nsess, .desk[data-mode="done"] .nsess, .desk[data-mode="error"] .nsess { display: none; }
+.desk[data-mode="question"] .nside, .desk[data-mode="done"] .nside, .desk[data-mode="error"] .nside { display: grid; align-content: center; }
+.nside .nfull { font-size: 20px; font-weight: 650; line-height: 1.3; text-wrap: balance; }
+.ns-done .nbtns, .ns-error .nbtns { justify-content: flex-start; }
+.ns-done .nbtns span, .ns-error .nbtns span { flex: none; padding: 8px 18px; }
+.ns-error .nfull + p { color: var(--red-text); }
+.nanswer { display: flex; gap: 8px; align-items: center; }
+.nanswer .field { flex: 1; min-width: 0; padding: 9px 14px; border-radius: 999px; background: #0b0c0e; border: 1px solid #26282d; color: var(--dim-3); font-size: 14px; }
+.nanswer .send { width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: #000; display: grid; place-items: center; flex: none; }
+.nlist-head { display: flex; justify-content: space-between; align-items: baseline; }
+.nplan { color: var(--dim); font-size: 13px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.nplan b { color: var(--ink); font-weight: 600; }
+.nrows { display: grid; gap: 4px; }
+.nrow { display: flex; align-items: center; gap: 10px; padding: 6px 8px; margin: 0 -8px; border-radius: 10px; font-size: 14px; }
+.nrow.on { background: var(--tab-on); }
+.nrow .s { margin-left: auto; color: var(--dim-3); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.desk[data-mode="working"] .nrow.on .s { color: var(--ink); }
+
+.nbar { justify-content: center; align-items: center; gap: 4px; }
+.nbar span { height: 34px; min-width: 34px; padding: 0 8px; border-radius: 999px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #8b9099; font-size: 14px; }
+.nbar span i { font-style: normal; display: none; }
+.nbar [data-tab] { cursor: pointer; }
+.desk[data-tab="home"] .nbar [data-tab="home"],
+.desk[data-tab="chat"] .nbar [data-tab="chat"],
+.desk[data-tab="plan"] .nbar [data-tab="plan"] { background: var(--tab-on); color: var(--ink); padding: 0 14px 0 10px; }
+.desk[data-tab="home"] .nbar [data-tab="home"] i,
+.desk[data-tab="chat"] .nbar [data-tab="chat"] i,
+.desk[data-tab="plan"] .nbar [data-tab="plan"] i { display: inline; }
+
 @media (prefers-reduced-motion: reduce) {
   .win, .panel { transition: none; }
   .desk * { animation: none !important; }
@@ -297,14 +405,19 @@ figcaption { font-size: 13px; }
 <main>
   <header>
     <h1>Coucou na barra de tarefas</h1>
-    <p>Protótipo da etapa 4: o formato e quatro visuais para escolher.</p>
+    <p>Versão 8: o painel de agentes no estilo do NotchNook. A sessão e os passos à esquerda; à direita, o que pede a sua atenção.</p>
   </header>
 
   <div class="controls">
+    <div class="seg" data-key="layout">
+      <span>Painel</span>
+      <button type="button" id="l-nook" data-val="nook" aria-pressed="true">Agentes (novo)</button>
+      <button type="button" id="l-today" data-val="today" aria-pressed="false">O de hoje</button>
+    </div>
     <div class="seg" data-key="mode">
       <span>Estado</span>
-      <button type="button" id="m-idle" data-val="idle" aria-pressed="true">Parado</button>
-      <button type="button" id="m-working" data-val="working" aria-pressed="false">Trabalhando</button>
+      <button type="button" id="m-idle" data-val="idle" aria-pressed="false">Parado</button>
+      <button type="button" id="m-working" data-val="working" aria-pressed="true">Trabalhando</button>
       <button type="button" id="m-approval" data-val="approval" aria-pressed="false">Pedindo aprovação</button>
       <button type="button" id="m-question" data-val="question" aria-pressed="false">Pergunta</button>
       <button type="button" id="m-done" data-val="done" aria-pressed="false">Terminou</button>
@@ -324,7 +437,7 @@ figcaption { font-size: 13px; }
       <button type="button" id="v-e" data-val="e" aria-pressed="true">E · Mistura</button>
     </div>
   </div>
-  <p class="hint">Toque na pílula preta, no canto esquerdo da barra, para abrir o painel. Toque fora para fechar. No painel, o balão abre o chat, a linha "Plano" abre o card do plano e a casinha volta ao início.</p>
+  <p class="hint">O painel já abre aberto. Troque o Estado para ver cada card. A barra de ícones embaixo do painel troca entre Agentes, Chat e Plano. Toque fora para fechar; toque na pílula para abrir de novo.</p>
 
   <figure>
     <div class="view" data-region="0,0,1920,1080"></div>
@@ -336,6 +449,9 @@ figcaption { font-size: 13px; }
   </figure>
 
   <ul class="notes">
+    <li><b>Agentes (novo):</b> à esquerda, a sessão em foco e os passos dela (feitos, o atual, os próximos). À direita, a lista de sessões e o plano, ou o pedido de aprovação do comando (Negar, Sempre, Permitir).</li>
+    <li>Pergunta, Terminou e Erro ocupam o painel inteiro. Na pergunta, dá para tocar numa opção ou escrever a sua resposta.</li>
+    <li>O painel fica no preto do Coucou de hoje e a pílula no vidro, como escolhido em 02/11.</li>
     <li>Fechada: Mochi, as bolinhas dos agentes e o uso do plano. Pedindo aprovação, ela fica âmbar.</li>
     <li>Aberta: o mesmo painel de hoje (720 × 320), subindo de cima da barra.</li>
     <li>Com a tela dividida, nenhuma janela cobre a pílula.</li>
@@ -348,7 +464,7 @@ figcaption { font-size: 13px; }
 </main>
 
 <template id="desk">
-  <div class="desk" data-mode="idle" data-split="0" data-open="0" data-variant="e" data-tab="home">
+  <div class="desk" data-mode="working" data-split="0" data-open="1" data-variant="e" data-tab="home" data-layout="nook">
     <div class="win w-main"><div class="bar">QualityHub · Visual Studio Code</div>
       <div class="lines"><i style="width:40%"></i><i style="width:72%"></i><i style="width:58%"></i><i style="width:80%"></i><i style="width:35%"></i></div></div>
     <div class="win w-side"><div class="bar">Claude</div>
@@ -427,6 +543,57 @@ figcaption { font-size: 13px; }
         <div class="foot"><span>Estimado pelos históricos das sessões · calibrado em 63%</span><span>Calibrar</span></div>
       </div>
 
+      <div class="vnook">
+        <div class="card nsess">
+          <div class="nhead">
+            <span class="mochi sm me"></span><b>QualityHub</b>
+            <span class="st"><span class="s-idle">Parado há 12 min</span><span class="s-working">Rodando os testes</span><span class="s-approval">Esperando você</span><span class="s-question">Te fez uma pergunta</span><span class="s-done">Terminou</span><span class="s-error">Parou com erro</span></span>
+            <span class="t">4 min</span>
+          </div>
+          <ol class="nsteps">
+            <li class="ok">Ler o schema do banco</li>
+            <li class="ok">Escrever o teste de login</li>
+            <li class="now">Rodar <code>npm run test -- login</code></li>
+            <li>Revisar o diff</li>
+          </ol>
+          <span class="nfoot">Claude Code · WSL · Opus 5.5</span>
+        </div>
+        <div class="card nside">
+          <div class="ns-list">
+            <span class="nsub nlist-head">3 sessões<span class="nplan" data-tab="plan" role="button">Plano <b>64%</b> ›</span></span>
+            <div class="nrows">
+              <span class="nrow on"><span class="mochi xs teal"></span>QualityHub<span class="s">trabalhando · 4 min</span></span>
+              <span class="nrow"><span class="mochi xs gold"></span>Coucou<span class="s">terminou · 12 min</span></span>
+              <span class="nrow"><span class="mochi xs violet"></span>Paperclip · CEO<span class="s">parado</span></span>
+            </div>
+          </div>
+          <div class="ns-approval">
+            <span class="nk"><span class="tag">!</span>Rodar comando?</span>
+            <span class="nsub">QualityHub · Claude Code</span>
+            <code>npm run test -- login</code>
+            <div class="nbtns"><span>Negar</span><span>Sempre</span><span class="yes">Permitir</span></div>
+          </div>
+          <div class="ns-question">
+            <span class="nk"><span class="tag">?</span>Pergunta<span class="nsub">· QualityHub · Claude Code</span></span>
+            <p class="nfull">Qual banco usar nos testes de login?</p>
+            <div class="nchips"><span>SQLite em memória</span><span>Postgres no Docker</span><span>Mock do ORM</span></div>
+            <div class="nanswer"><span class="field">Ou escreva a sua resposta…</span><span class="send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></div>
+          </div>
+          <div class="ns-done">
+            <span class="nk"><span class="tag">✓</span>Terminou<span class="nsub">· QualityHub · Claude Code · 4 min</span></span>
+            <p class="nfull">Testes de login passando: 14 de 14.</p>
+            <p class="nsub">Leu o schema, escreveu o teste de login, rodou os testes e revisou o diff.</p>
+            <div class="nbtns"><span class="main">Abrir sessão</span><span>OK</span></div>
+          </div>
+          <div class="ns-error">
+            <span class="nk"><span class="tag">✕</span>A sessão parou<span class="nsub">· Coucou · Claude Code</span></span>
+            <p class="nfull">O npm run tauri dev falhou.</p>
+            <p>A porta 1420 já está em uso. Feche o outro Coucou e tente de novo.</p>
+            <div class="nbtns"><span class="main">Tentar de novo</span><span>Abrir sessão</span></div>
+          </div>
+        </div>
+      </div>
+
       <div class="valert vquestion">
         <div class="card qcard">
           <div class="mochi"><span class="badge q"></span></div>
@@ -449,6 +616,14 @@ figcaption { font-size: 13px; }
           <span class="field">Escreva para o Claude…</span>
           <span class="send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>
         </div>
+      </div>
+
+      <div class="nbar">
+        <span data-tab="home" role="button" aria-label="Agentes"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z"/></svg><i>Agentes</i></span>
+        <span data-tab="chat" role="button" aria-label="Chat"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v12H8l-4 4z"/></svg><i>Chat</i></span>
+        <span data-tab="plan" role="button" aria-label="Plano"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 18a8 8 0 1 1 16 0M12 18l4-6"/></svg><i>Plano</i></span>
+        <span aria-label="Arquivos"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 13l3-8h10l3 8v6H4zM4 13h5l1 2h4l1-2h5"/></svg></span>
+        <span aria-label="Ajustes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg></span>
       </div>
     </div>
 

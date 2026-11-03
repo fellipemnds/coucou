@@ -1,0 +1,127 @@
+// Fork: on Windows the window sits in the bottom-left corner of the taskbar
+// (island_dock.rs), so the island is drawn at the window's bottom-left and opens upwards.
+
+import { NOTCH_H, PANEL_H } from "../core/layout";
+
+export const DOCKED = navigator.userAgent.includes("Windows");
+if (DOCKED) document.documentElement.classList.add("docked");
+
+const RESTING = new Set(["idle", "sleeping", "finished"]);
+
+/**
+ * The pill is always on screen, so its idle loops (breathing, z's) would draw
+ * 60 frames a second forever: resting in the compact pill, Mochi holds still.
+ */
+export function restsStill(mode: string, state: string) {
+  return DOCKED && mode === "compact" && RESTING.has(state);
+}
+
+const TONES: Partial<Record<string, string>> = {
+  working: "working", thinking: "working", searching: "working",
+  approval: "approval", question: "question", error: "error", ratelimit: "error", finished: "done",
+};
+
+/** The pill's look for Mochi's state (fork-island.css): only work moves, the alerts have their colour. */
+export function dockTone(state: string) {
+  return TONES[state] ?? "idle";
+}
+
+/** States in which the last step is still under way: it gets the spinner (or the alert's mark), not a ✓. */
+const UNDER_WAY = new Set(["working", "thinking", "searching", "approval", "question", "error", "ratelimit"]);
+
+/** The agents panel's step list (views/agents.ts): the last `max` steps, ✓ done, the last one current while under way. */
+export function stepMarks(steps: string[], state: string, max: number) {
+  const shown = steps.slice(-max);
+  const current = UNDER_WAY.has(state) ? shown.length - 1 : -1;
+  return shown.map((text, i) => ({ text, now: i === current }));
+}
+
+const TURN_START = new Set(["SessionStart", "UserPromptSubmit"]);
+
+/**
+ * The pill shows only the focused pill's Mochi: a pill whose agent starts a turn
+ * comes to the front, unless the panel is open (that would pull it from under the user).
+ */
+export function followsActivity(event: string, mode: string, docked = DOCKED) {
+  return docked && mode !== "expanded" && TURN_START.has(event);
+}
+
+const turnStarts = new Map<string, number>();
+
+/** When the pill's current turn began (views/agents.ts shows the minutes). */
+export function turnStartedAt(pill: string): number | undefined {
+  return turnStarts.get(pill);
+}
+
+/**
+ * Hears every hook event (island/hooks.ts): notes when a turn starts, and says whether
+ * the pill should come to the front for it. A waiting permission or question keeps the front:
+ * its card names the focused pill (as hooks.ts showsAlert).
+ */
+export function dockHook(event: string, pill: string, mode: string, focusId: string | null, waiting: boolean, docked = DOCKED) {
+  if (event === "UserPromptSubmit") turnStarts.set(pill, Date.now());
+  return !waiting && followsActivity(event, mode, docked) && focusId !== pill;
+}
+
+let popEnd = 0;
+
+/** Mochi pops when another agent takes the front, so the switch is seen (fork-island.css `dock-hop`). */
+export function popDock() {
+  const el = document.documentElement;
+  el.classList.remove("dock-switch");
+  void el.offsetWidth; // a reflow, so adding the class again replays the animation
+  el.classList.add("dock-switch");
+  // Taken off once played, or every fold of the panel would replay it.
+  clearTimeout(popEnd);
+  popEnd = window.setTimeout(() => el.classList.remove("dock-switch"), 600);
+}
+
+let tone = "";
+
+/** Sets `data-dock` on the page when the tone changes, so the CSS restyles only then. */
+export function setDockTone(state: string) {
+  const t = dockTone(state);
+  if (DOCKED && t !== tone) document.documentElement.dataset.dock = tone = t;
+}
+
+/** Open, the panel floats above the taskbar, clear of the pill: 32 px pill + 16. `LIFT` in island_dock.rs. */
+export const LIFT = 48;
+
+/** Island rect in window coordinates when docked. */
+export function dockedRect(w: number, h: number) {
+  const vh = window.innerHeight > 0 ? window.innerHeight : PANEL_H + LIFT;
+  // The bottom edge rises with the first LIFT px of growth, so the morph stays continuous.
+  const lift = Math.min(LIFT, Math.max(0, h - NOTCH_H));
+  return { x: 0, y: vh - h - lift, w, h };
+}
+
+/**
+ * Where the pointer counts as on the island. Open, the panel floats LIFT px above
+ * the pill: the gap and the pill below count too, or moving from the pill to the
+ * panel would leave it, and Open on hover would close it on the way.
+ */
+export function dockedHitRect(r: { x: number; y: number; w: number; h: number }) {
+  const vh = window.innerHeight > 0 ? window.innerHeight : r.y + r.h;
+  return { ...r, h: Math.max(r.h, vh - r.y) };
+}
+
+/** Places the island element at the bottom-left, every corner rounded. */
+export function dockIsland(el: HTMLElement, w: number, h: number, r: number) {
+  const rect = dockedRect(w, h);
+  el.style.left = "0";
+  el.style.top = `${rect.y}px`;
+  el.style.transform = "none";
+  el.style.borderRadius = `${r}px`;
+  return rect;
+}
+
+/**
+ * The compact island centres Mochi 40 px from the left and the agent grid 40 px
+ * from the right, around the Mac's notch. In the taskbar there is no notch: the
+ * pill is as wide as what it shows, Mochi's 64 px plus the gauge and the agents.
+ */
+export function dockedCompactW(gauge: boolean, agents: boolean) {
+  const gaugeW = gauge ? 50 : 0; // the plan gauge with "100%"
+  const right = gaugeW > 0 ? (agents ? 58 : 20) + gaugeW : agents ? 52 : 16;
+  return 64 + right;
+}
